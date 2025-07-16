@@ -1,0 +1,44 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <form nz-form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="bg-white p-4 rounded shadow"
+        style="min-width:350px;">
+        <div class="login-heading text-center" style="margin-top:0; margin-bottom:8px;">
+          <h2 style="margin-bottom:2px; font-weight:700; color:#1890ff; letter-spacing:1px;">ZimInsure</h2>
+          <div style="font-size:1.1em; color:#888; margin-bottom:8px;">Sign in to your account</div>
+        </div>
+        <h3 class="mb-4 text-center">Login</h3>
+        <div nz-form-item nz-row class="mb-3">
+            <div nz-form-label nz-col [nzSpan]="24">
+                <label for="email">Email</label>
+            </div>
+            <div nz-form-control nz-col [nzSpan]="24">
+                <input nz-input formControlName="email" id="email" type="email" placeholder="Enter your email" />
+                <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                    class="text-danger small">Valid email is required</div>
+            </div>
+        </div>
+        <div nz-form-item nz-row class="mb-3">
+            <div nz-form-label nz-col [nzSpan]="24">
+                <label for="password">Password</label>
+            </div>
+            <div nz-form-control nz-col [nzSpan]="24">
+                <input nz-input formControlName="password" id="password" type="password"
+                    placeholder="Enter your password" />
+                <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                    class="text-danger small">Password is required</div>
+            </div>
+        </div>
+        <div nz-form-item nz-row class="mb-3">
+            <div nz-form-control nz-col [nzSpan]="24">
+                <label nz-checkbox formControlName="remember">Remember me</label>
+            </div>
+        </div>
+        <div *ngIf="errorMessage" class="alert alert-danger py-1">{{ errorMessage }}</div>
+        <button nz-button nzType="primary" class="w-100 mb-2" [disabled]="loginForm.invalid || loading">
+            <span *ngIf="!loading">Login</span>
+            <span *ngIf="loading"><i nz-icon nzType="loading"></i> Logging in...</span>
+        </button>
+        <div class="text-center">
+            <a routerLink="/register">Don't have an account? Register</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,63 @@
+<div class="register-heading text-center" style="margin-top: 32px;">
+  <h2 style="margin-bottom: 18px; font-weight: 700; color: #1890ff; letter-spacing: 1px;">ZimInsure</h2>
+  <div style="font-size:1.1em; color:#888; margin-bottom: 18px;">Create your account</div>
+</div>
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" nzRequired>Full Name</nz-form-label>
+    <nz-form-control [nzSpan]="18" nzErrorTip="Full name is required">
+      <input nz-input formControlName="fullName" placeholder="Full Name" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" nzRequired>Email</nz-form-label>
+    <nz-form-control [nzSpan]="18" [nzErrorTip]="registerForm.get('email')?.hasError('email') ? 'Invalid email' : 'Email is required'">
+      <input nz-input formControlName="email" placeholder="Email" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" nzRequired>Password</nz-form-label>
+    <nz-form-control [nzSpan]="18" nzErrorTip="Password must be at least 6 characters">
+      <input nz-input type="password" formControlName="password" placeholder="Password" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" nzRequired>Confirm Password</nz-form-label>
+    <nz-form-control [nzSpan]="18" [nzErrorTip]="registerForm.hasError('passwordMismatch') ? 'Passwords do not match' : 'Confirmation required'">
+      <input nz-input type="password" formControlName="confirmPassword" placeholder="Confirm Password" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" nzRequired>ID Number</nz-form-label>
+    <nz-form-control [nzSpan]="18" nzErrorTip="ID Number is required">
+      <input nz-input formControlName="idNumber" placeholder="ID Number" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" nzRequired>Address</nz-form-label>
+    <nz-form-control [nzSpan]="18" nzErrorTip="Address is required">
+      <input nz-input formControlName="address" placeholder="Address" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6">Phone</nz-form-label>
+    <nz-form-control [nzSpan]="18">
+      <input nz-input formControlName="phone" placeholder="Phone (optional)" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <div *ngIf="errorMessage" class="error-message" style="color: red; margin-bottom: 1em;">{{ errorMessage }}</div>
+
+  <button nz-button nzType="primary" [disabled]="registerForm.invalid || loading" [nzLoading]="loading" class="w-100">
+    Register
+  </button>
+  <div class="mt-3 text-center">
+    Already have an account? <a routerLink="/login">Login</a>
+  </div>
+</form>

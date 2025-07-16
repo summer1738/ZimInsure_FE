@@ -1,0 +1,47 @@
+.register-form {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 32px 24px 24px 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.03);
+}
+
+.register-form nz-form-item {
+  margin-bottom: 18px;
+}
+
+.register-form input[nz-input] {
+  height: 40px;
+  font-size: 1.05em;
+}
+
+.register-form button[nz-button] {
+  height: 44px;
+  font-size: 1.1em;
+  font-weight: 500;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+.register-form .error-message {
+  color: #ff4d4f;
+  font-size: 1em;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.register-form .mt-3 {
+  margin-top: 18px;
+}
+
+.register-form .text-center {
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .register-form {
+    padding: 18px 6px 12px 6px;
+    max-width: 98vw;
+  }
+}

@@ -1,0 +1,29 @@
+<div class="container py-4">
+  <h2>Notifications</h2>
+  <div class="mb-3 d-flex justify-content-between align-items-center">
+    <button class="btn btn-outline-primary" (click)="markAllAsRead()" [disabled]="unreadCount === 0">Mark All as Read</button>
+    <span class="text-muted">Total: {{ notifications.length }}</span>
+  </div>
+  <div *ngIf="notifications.length === 0" class="alert alert-info">No notifications.</div>
+  <ul class="list-group">
+    <li *ngFor="let n of notifications" class="list-group-item d-flex align-items-center" [ngClass]="{'list-group-item-secondary': n.read, 'list-group-item-info': !n.read}">
+      <span *ngIf="!n.read" class="badge bg-primary me-2">New</span>
+      <span [ngClass]="{
+        'text-info': n.type === 'info',
+        'text-success': n.type === 'success',
+        'text-warning': n.type === 'warning',
+        'text-danger': n.type === 'error'
+      }">
+        <i class="bi" [ngClass]="{
+          'bi-info-circle': n.type === 'info',
+          'bi-check-circle': n.type === 'success',
+          'bi-exclamation-triangle': n.type === 'warning',
+          'bi-x-circle': n.type === 'error'
+        }"></i>
+      </span>
+      <span class="ms-2">{{ n.message }}</span>
+      <small class="text-muted ms-2">{{ n.timestamp | date:'short' }}</small>
+      <button *ngIf="!n.read" class="btn btn-sm btn-outline-secondary ms-auto" (click)="markAsRead(n.id)">Mark as Read</button>
+    </li>
+  </ul>
+</div>

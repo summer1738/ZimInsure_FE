@@ -1,0 +1,118 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Super Admin Dashboard</h2>
+  </div>
+  <app-add-client-modal
+    [visible]="showAddClientModal"
+    [agentOptions]="agentOptions"
+    (close)="closeAddClientModal()"
+    (submit)="handleAddClient($event)">
+  </app-add-client-modal>
+  <!-- Stats Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card text-bg-primary h-100 shadow-lg clickable-card" style="border-radius: 1rem; cursor:pointer;" (click)="openAddClientModal()">
+        <div class="card-body text-center">
+          <h5 class="card-title">Clients</h5>
+          <h2 class="card-text"><span *ngIf="totalClients$ | async as total">{{ total }}</span></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-bg-success h-100 shadow-lg clickable-card" style="border-radius: 1rem; cursor:pointer;" (click)="openAddClientModal()">
+        <div class="card-body text-center">
+          <h5 class="card-title">Cars</h5>
+          <h2 class="card-text"><span *ngIf="totalCars$ | async as total">{{ total }}</span></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-bg-warning h-100 shadow-lg clickable-card" style="border-radius: 1rem; cursor:pointer;" (click)="openAddClientModal()">
+        <div class="card-body text-center">
+          <h5 class="card-title">Policies</h5>
+          <h2 class="card-text"><span *ngIf="totalPolicies$ | async as total">{{ total }}</span></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-bg-info h-100 shadow-lg clickable-card" style="border-radius: 1rem; cursor:pointer;" (click)="openAddClientModal()">
+        <div class="card-body text-center">
+          <h5 class="card-title">Quotations</h5>
+          <h2 class="card-text"><span *ngIf="totalQuotations$ | async as total">{{ total }}</span></h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="mb-4">
+    <h4>Quick Links</h4>
+    <div class="btn-group" role="group">
+      <a routerLink="/clients" class="btn btn-outline-primary">Manage Clients</a>
+      <a routerLink="/cars" class="btn btn-outline-success">Manage Cars</a>
+      <a routerLink="/policies" class="btn btn-outline-warning">Manage Policies</a>
+      <a routerLink="/quotations" class="btn btn-outline-info">Manage Quotations</a>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Recent Policies -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100 shadow-lg">
+        <div class="card-header bg-warning text-dark">Recent Policies</div>
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <thead>
+              <tr>
+                <th>Policy #</th>
+                <th>Type</th>
+                <th>Client</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let policy of recentPolicies$ | async">
+                <td>{{ policy.policyNumber }}</td>
+                <td>{{ policy.type }}</td>
+                <td>{{ policy.clientName }}</td>
+                <td>{{ policy.status }}</td>
+              </tr>
+              <tr *ngIf="(recentPolicies$ | async)?.length === 0">
+                <td colspan="4" class="text-center">No recent policies.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- Recent Quotations -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100 shadow-lg">
+        <div class="card-header bg-info text-dark">Recent Quotations</div>
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <thead>
+              <tr>
+                <th>Quotation #</th>
+                <th>Client</th>
+                <th>Policy Type</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let quotation of recentQuotations$ | async">
+                <td>{{ quotation.quotationNumber }}</td>
+                <td>{{ quotation.client?.fullName }}</td>
+                <td>{{ quotation.policyType }}</td>
+                <td>{{ quotation.status }}</td>
+              </tr>
+              <tr *ngIf="(recentQuotations$ | async)?.length === 0">
+                <td colspan="4" class="text-center">No recent quotations.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

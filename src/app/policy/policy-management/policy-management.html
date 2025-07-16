@@ -1,0 +1,97 @@
+<div class="mb-3 d-flex justify-content-between align-items-center">
+  <input #searchBox type="text" class="form-control w-auto" style="min-width: 250px;" placeholder="Search policies..."
+         (input)="onSearch(searchBox.value)">
+  <button class="btn btn-primary" (click)="showAddModal()">Add Policy</button>
+</div>
+
+<div class="ant-table-wrapper">
+  <table class="ant-table" style="width: 100%;">
+    <thead class="ant-table-thead">
+      <tr>
+        <th>Policy Number</th>
+        <th>Type</th>
+        <th>Premium</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Client</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody class="ant-table-tbody">
+      <tr *ngFor="let policy of (filteredPolicies$ | async) || []">
+        <td>{{ policy.policyNumber }}</td>
+        <td>{{ policy.type }}</td>
+        <td>{{ policy.premium }}</td>
+        <td>{{ policy.startDate }}</td>
+        <td>{{ policy.endDate }}</td>
+        <td>{{ policy.clientName }}</td>
+        <td>{{ policy.status }}</td>
+        <td>
+          <button class="btn btn-secondary btn-sm" (click)="showEditModal(policy)">Edit</button>
+          <button class="btn btn-danger btn-sm" (click)="deletePolicy(policy.id)">Delete</button>
+        </td>
+      </tr>
+      <tr *ngIf="((filteredPolicies$ | async) || []).length === 0">
+        <td colspan="8" style="text-align: center;">No policies found.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Redesigned Bootstrap Modal -->
+<div class="modal fade show" tabindex="-1" [ngStyle]="{display: isModalVisible ? 'block' : 'none', background: 'rgba(0,0,0,0.5)'}" style="z-index: 1050;" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content shadow-lg">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title mb-0">
+          <!-- <i class='bi bi-file-earmark-text'></i> -->
+          {{ isEditMode ? 'Edit Policy' : 'Add Policy' }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white ms-auto" aria-label="Close" (click)="handleModalCancel()"></button>
+      </div>
+      <form #policyForm="ngForm" (ngSubmit)="handleModalOk(selectedPolicy)">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Policy Number</label>
+              <input class="form-control" [(ngModel)]="selectedPolicy.policyNumber" name="policyNumber" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Type</label>
+              <input class="form-control" [(ngModel)]="selectedPolicy.type" name="type" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Premium</label>
+              <input class="form-control" type="number" [(ngModel)]="selectedPolicy.premium" name="premium" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Status</label>
+              <input class="form-control" [(ngModel)]="selectedPolicy.status" name="status" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Start Date</label>
+              <input class="form-control" type="date" [(ngModel)]="selectedPolicy.startDate" name="startDate" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">End Date</label>
+              <input class="form-control" type="date" [(ngModel)]="selectedPolicy.endDate" name="endDate" required />
+            </div>
+            <div class="col-12 mb-3">
+              <label class="font-weight-bold">Client Name</label>
+              <input class="form-control" [(ngModel)]="selectedPolicy.clientName" name="clientName" required />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success" [disabled]="!policyForm.form.valid">
+            <!-- <i class='bi bi-check-circle'></i> --> {{ isEditMode ? 'Update' : 'Add' }}
+          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="handleModalCancel()">
+            <!-- <i class='bi bi-x-circle'></i> --> Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

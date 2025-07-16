@@ -1,0 +1,18 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4">
+  <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+    <img src="/assets/logo.svg" alt="ZimInsure Logo" style="height:32px; margin-right:10px;" />
+    <span style="font-size:1.3em; font-weight:700; color:#1890ff; letter-spacing:1px;">ZimInsure</span>
+  </a>
+  <div class="ms-auto d-flex align-items-center">
+    <span class="me-3">
+      <i nz-icon nzType="user" class="me-1"></i>
+      {{ userName }} <span class="badge bg-secondary text-uppercase ms-2">{{ userRole }}</span>
+      <a *ngIf="userRole === 'CLIENT'" routerLink="/profile" class="ms-2 btn btn-link p-0 align-baseline">My Profile</a>
+    </span>
+    <button nz-button nzType="default" class="me-3 position-relative" nzShape="circle" nzSize="small" title="Notifications" (click)="openNotifications()">
+      <i nz-icon nzType="bell"></i>
+      <span *ngIf="unreadCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.75em;">{{ unreadCount }}</span>
+    </button>
+    <button nz-button nzType="default" (click)="logout()">Logout</button>
+  </div>
+</nav>

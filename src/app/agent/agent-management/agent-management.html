@@ -1,0 +1,103 @@
+<div class="mb-3 d-flex justify-content-between align-items-center">
+  <input #searchBox type="text" class="form-control w-auto" style="min-width: 250px;" placeholder="Search agents..."
+         (input)="onSearch(searchBox.value)">
+  <button class="btn btn-primary" (click)="showAddModal()">Add Agent</button>
+</div>
+
+<div class="ant-table-wrapper">
+  <table class="ant-table" style="width: 100%;">
+    <thead class="ant-table-thead">
+      <tr>
+        <th (click)="onSort('name')" style="cursor:pointer;">Name <span *ngIf="sortColumn$.value === 'name'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('email')" style="cursor:pointer;">Email <span *ngIf="sortColumn$.value === 'email'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('phone')" style="cursor:pointer;">Phone <span *ngIf="sortColumn$.value === 'phone'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('idNumber')" style="cursor:pointer;">ID Number <span *ngIf="sortColumn$.value === 'idNumber'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('status')" style="cursor:pointer;">Status <span *ngIf="sortColumn$.value === 'status'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody class="ant-table-tbody">
+      <tr *ngFor="let agent of (filteredAgents$ | async) || []">
+        <td>{{ agent.name }}</td>
+        <td>{{ agent.email }}</td>
+        <td>{{ agent.phone }}</td>
+        <td>{{ agent.idNumber }}</td>
+        <td>{{ agent.status }}</td>
+        <td>
+          <button class="btn btn-secondary btn-sm" (click)="showEditModal(agent)">Edit</button>
+          <button class="btn btn-danger btn-sm" (click)="deleteAgent(agent.id)">Delete</button>
+        </td>
+      </tr>
+      <tr *ngIf="((filteredAgents$ | async) || []).length === 0">
+        <td colspan="6" style="text-align: center;">No agents found.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination Controls -->
+<nav *ngIf="totalAgents > pageSize" aria-label="Agent pagination" class="mt-3">
+  <ul class="pagination justify-content-center">
+    <li class="page-item" [class.disabled]="currentPage$.value === 1">
+      <a class="page-link" href="#" (click)="$event.preventDefault(); onPageChange(currentPage$.value - 1)">Previous</a>
+    </li>
+    <li class="page-item" *ngFor="let page of totalPages; let i = index" [class.active]="currentPage$.value === (i+1)">
+      <a class="page-link" href="#" (click)="$event.preventDefault(); onPageChange(i+1)">{{ i+1 }}</a>
+    </li>
+    <li class="page-item" [class.disabled]="currentPage$.value === totalPages.length">
+      <a class="page-link" href="#" (click)="$event.preventDefault(); onPageChange(currentPage$.value + 1)">Next</a>
+    </li>
+  </ul>
+</nav>
+
+<!-- Modern Bootstrap Modal for Add/Edit Agent -->
+<div class="modal fade show" tabindex="-1" [ngStyle]="{display: isModalVisible ? 'block' : 'none', background: 'rgba(0,0,0,0.5)'}" style="z-index: 1050;" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content shadow-lg">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title mb-0">
+          <!-- <i class='bi bi-person'></i> -->
+          {{ isEditMode ? 'Edit Agent' : 'Add Agent' }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white ms-auto" aria-label="Close" (click)="handleModalCancel()"></button>
+      </div>
+      <form #agentForm="ngForm" (ngSubmit)="handleModalOk(selectedAgent)">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Name</label>
+              <input class="form-control" [(ngModel)]="selectedAgent.name" name="name" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Email</label>
+              <input class="form-control" type="email" [(ngModel)]="selectedAgent.email" name="email" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Phone</label>
+              <input class="form-control" [(ngModel)]="selectedAgent.phone" name="phone" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">ID Number</label>
+              <input class="form-control" [(ngModel)]="selectedAgent.idNumber" name="idNumber" required pattern="\d{8,9}[A-Z]\d{2}" #idNumberInput="ngModel" />
+              <div *ngIf="idNumberInput.invalid && idNumberInput.touched" class="text-danger small">
+                Please enter a valid ID number (e.g., 422018163T42).
+              </div>
+            </div>
+            <div class="col-12 mb-3">
+              <label class="font-weight-bold">Status</label>
+              <input class="form-control" [(ngModel)]="selectedAgent.status" name="status" required />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success" [disabled]="!agentForm.form.valid">
+            <!-- <i class='bi bi-check-circle'></i> --> {{ isEditMode ? 'Update' : 'Add' }}
+          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="handleModalCancel()">
+            <!-- <i class='bi bi-x-circle'></i> --> Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

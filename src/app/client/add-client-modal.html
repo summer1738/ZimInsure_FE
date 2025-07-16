@@ -1,0 +1,86 @@
+<div class="modal fade show" tabindex="-1" [ngStyle]="{display: visible ? 'block' : 'none', background: 'rgba(0,0,0,0.5)'}" style="z-index: 1050;" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content shadow-lg">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title mb-0">Add Client</h5>
+        <button type="button" class="btn-close btn-close-white ms-auto" aria-label="Close" (click)="handleClose()"></button>
+      </div>
+      <form (ngSubmit)="handleSubmit()">
+        <div class="modal-body">
+          <div class="row">
+            <div *ngIf="agentId === null" class="col-12 mb-3">
+              <label class="font-weight-bold">Assign to Agent</label>
+              <select class="form-select" [(ngModel)]="client.agentId" name="agentId" required>
+                <option value="">Select agent</option>
+                <option *ngFor="let agent of agentOptions" [value]="agent.id">{{ agent.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Name</label>
+              <input class="form-control" [(ngModel)]="client.name" name="name" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Email</label>
+              <input class="form-control" type="email" [(ngModel)]="client.email" name="email" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Phone</label>
+              <input class="form-control" [(ngModel)]="client.phone" name="phone" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">ID Number</label>
+              <input class="form-control" [(ngModel)]="client.idNumber" name="idNumber" required pattern="\d{8,9}[A-Z]\d{2}" />
+            </div>
+            <div class="col-12 mb-3">
+              <label class="font-weight-bold">Address</label>
+              <input class="form-control" [(ngModel)]="client.address" name="address" required />
+            </div>
+            <div class="col-12 mb-3">
+              <label class="font-weight-bold">Status</label>
+              <input class="form-control" [(ngModel)]="client.status" name="status" required />
+            </div>
+          </div>
+          <!-- Cars Section -->
+          <div class="border rounded p-3 mt-3 bg-light">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="font-weight-bold mb-0">Cars <span class="text-danger">*</span></label>
+              <button type="button" class="btn btn-sm btn-outline-success" (click)="addCarForm()">Add Car</button>
+            </div>
+            <div *ngFor="let car of carsForClient; let i = index" class="row align-items-end mb-2">
+              <div class="col-md-2 mb-2">
+                <input class="form-control" placeholder="Reg #" [(ngModel)]="car.regNumber" name="regNumber{{i}}" maxlength="7" required />
+              </div>
+              <div class="col-md-2 mb-2">
+                <input class="form-control" placeholder="Make" [(ngModel)]="car.make" name="make{{i}}" required />
+              </div>
+              <div class="col-md-2 mb-2">
+                <input class="form-control" placeholder="Model" [(ngModel)]="car.model" name="model{{i}}" required />
+              </div>
+              <div class="col-md-2 mb-2">
+                <input class="form-control" type="number" placeholder="Year" [(ngModel)]="car.year" name="year{{i}}" min="1900" [max]="currentYear" required />
+              </div>
+              <div class="col-md-2 mb-2">
+                <input class="form-control" placeholder="Owner" [(ngModel)]="car.owner" name="owner{{i}}" required />
+              </div>
+              <div class="col-md-2 mb-2">
+                <select class="form-select" [(ngModel)]="car.status" name="status{{i}}" required>
+                  <option value="">Status</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+              <div class="col-auto mb-2">
+                <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeCarForm(i)" [disabled]="carsForClient.length === 1">Remove</button>
+              </div>
+            </div>
+            <div *ngIf="carsForClient.length === 0" class="text-danger small">At least one car is required.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Add</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="handleClose()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 
