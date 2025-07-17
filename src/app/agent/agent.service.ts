@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiService } from '../api.service';
 
 export interface Agent {
   id: number;
@@ -13,23 +13,21 @@ export interface Agent {
 
 @Injectable({ providedIn: 'root' })
 export class AgentService {
-  private apiUrl = '/api/agents';
-
-  constructor(private http: HttpClient) {}
+  constructor(private api: ApiService) {}
 
   getAgents(): Observable<Agent[]> {
-    return this.http.get<Agent[]>(this.apiUrl);
+    return this.api.get<Agent[]>('/agents');
   }
 
   addAgent(agent: Agent): Observable<Agent> {
-    return this.http.post<Agent>(this.apiUrl, agent);
+    return this.api.post<Agent>('/agents', agent);
   }
 
   updateAgent(agent: Agent): Observable<Agent> {
-    return this.http.put<Agent>(`${this.apiUrl}/${agent.id}`, agent);
+    return this.api.put<Agent>(`/agents/${agent.id}`, agent);
   }
 
   deleteAgent(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.api.delete(`/agents/${id}`);
   }
 } 

@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { InsuranceService } from './car/insurance.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,13 @@ export class App implements OnInit, OnDestroy {
   isTestModalVisible = false;
   private insuranceScanInterval: any;
 
-  constructor(private insuranceService: InsuranceService) {}
+  constructor(private insuranceService: InsuranceService, private http: HttpClient) {
+    console.log('App component constructed');
+    this.http.get('/api/test').subscribe({
+      next: (res) => console.log('Test HTTP GET success', res),
+      error: (err) => console.log('Test HTTP GET error', err)
+    });
+  }
 
   ngOnInit() {
     this.insuranceService.scanExpiringInsurances();

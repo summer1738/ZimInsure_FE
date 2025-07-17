@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 export interface LoginResponse {
   token: string;
@@ -12,11 +12,11 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = '/api/auth'; // Adjust if needed
   private tokenKey = 'jwt_token';
   private roleKey = 'user_role';
   private usernameKey = 'username';
   private loggedIn$ = new BehaviorSubject<boolean>(this.hasToken());
+  private refreshTokenKey = 'refresh_token';
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -25,7 +25,8 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { username, password }).pipe(
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post<LoginResponse>('/auth/login', { email: username, password }, { headers }).pipe(
       tap(res => {
         this.setSession(res);
         this.loggedIn$.next(true);
@@ -40,7 +41,7 @@ export class AuthService {
       localStorage.removeItem(this.usernameKey);
     }
     this.loggedIn$.next(false);
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/login']);
   }
 
   private setSession(authResult: LoginResponse): void {
@@ -48,6 +49,9 @@ export class AuthService {
       localStorage.setItem(this.tokenKey, authResult.token);
       localStorage.setItem(this.roleKey, authResult.role);
       localStorage.setItem(this.usernameKey, authResult.username);
+      if ((authResult as any).refreshToken) {
+        this.setRefreshToken((authResult as any).refreshToken);
+      }
     }
   }
 
@@ -76,6 +80,29 @@ export class AuthService {
   }
 
   register(user: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, user);
+    return this.http.post('/auth/register', user);
+  }
+
+  setRefreshToken(token: string): void {
+    if (this.isBrowser()) {
+      localStorage.setItem(this.refreshTokenKey, token);
+    }
+  }
+
+  getRefreshToken(): string | null {
+    if (!this.isBrowser()) return null;
+    return localStorage.getItem(this.refreshTokenKey);
+  }
+
+  refreshToken(): Observable<LoginResponse> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+    return this.http.post<LoginResponse>('/auth/refresh', { refreshToken }).pipe(
+      tap(res => {
+        this.setSession(res);
+      })
+    );
   }
 } 

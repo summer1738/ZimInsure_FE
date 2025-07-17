@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ApiService } from '../api.service';
 
 export interface InsuranceTerm {
   id: number;
@@ -13,36 +13,31 @@ export interface InsuranceTerm {
 
 @Injectable({ providedIn: 'root' })
 export class InsuranceService {
-  private apiUrl = '/api/insurance-terms';
-
-  constructor(private http: HttpClient) {}
+  constructor(private api: ApiService) {}
 
   getTerms(carId?: number): Observable<InsuranceTerm[]> {
-    let params = new HttpParams();
-    if (carId) {
-      params = params.set('carId', carId.toString());
-    }
-    return this.http.get<InsuranceTerm[]>(this.apiUrl, { params });
+    const params = carId ? { carId: carId.toString() } : undefined;
+    return this.api.get<InsuranceTerm[]>('/insurance-terms', params);
   }
 
   addTerm(term: Partial<InsuranceTerm>): Observable<InsuranceTerm> {
-    return this.http.post<InsuranceTerm>(this.apiUrl, term);
+    return this.api.post<InsuranceTerm>('/insurance-terms', term);
   }
 
   deleteTerm(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.api.delete(`/insurance-terms/${id}`);
   }
 
   scanExpiringInsurances(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/scan-expiring`);
+    return this.api.get('/insurance-terms/scan-expiring');
   }
 
   getCurrentTermByCarId(carId: number): Observable<InsuranceTerm> {
-    return this.http.get<InsuranceTerm>(`${this.apiUrl}/current`, { params: new HttpParams().set('carId', carId.toString()) });
+    return this.api.get<InsuranceTerm>('/insurance-terms/current', { carId: carId.toString() });
   }
 
   isCarInsured(carId: number): Observable<boolean> {
-    return this.http.get<{ insured: boolean }>(`${this.apiUrl}/is-insured`, { params: new HttpParams().set('carId', carId.toString()) })
+    return this.api.get<{ insured: boolean }>('/insurance-terms/is-insured', { carId: carId.toString() })
       .pipe(map(res => res.insured));
   }
 } 

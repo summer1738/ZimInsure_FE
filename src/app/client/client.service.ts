@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiService } from '../api.service';
 
 export interface Client {
   id: number;
@@ -15,35 +15,33 @@ export interface Client {
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
-  private apiUrl = '/api/clients';
-
-  constructor(private http: HttpClient) {}
+  constructor(private api: ApiService) {}
 
   getClients(): Observable<Client[]> {
-    return this.http.get<Client[]>(this.apiUrl);
+    return this.api.get<Client[]>('/clients');
   }
 
   addClient(client: Client): Observable<Client> {
-    return this.http.post<Client>(this.apiUrl, client);
+    return this.api.post<Client>('/clients', client);
   }
 
   updateClient(client: Client): Observable<Client> {
-    return this.http.put<Client>(`${this.apiUrl}/${client.id}`, client);
+    return this.api.put<Client>(`/clients/${client.id}`, client);
   }
 
   deleteClient(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.api.delete(`/clients/${id}`);
   }
 
   getMyProfile(): Observable<Client> {
-    return this.http.get<Client>(`${this.apiUrl}/me`);
+    return this.api.get<Client>('/clients/me');
   }
 
   updateMyProfile(client: Partial<Client>): Observable<Client> {
-    return this.http.put<Client>(`${this.apiUrl}/me`, client);
+    return this.api.put<Client>('/clients/me', client);
   }
 
   getClientsByAgentId(agentId: number): Observable<Client[]> {
-    return this.http.get<Client[]>(this.apiUrl, { params: { agentId: agentId.toString() } });
+    return this.api.get<Client[]>('/clients', { agentId: agentId.toString() });
   }
 } 

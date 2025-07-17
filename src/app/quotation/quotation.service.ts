@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Quotation {
   id: number;
@@ -16,7 +17,7 @@ export interface Quotation {
 
 @Injectable({ providedIn: 'root' })
 export class QuotationService {
-  private apiUrl = '/api/quotations';
+  private apiUrl = environment.apiUrl + '/quotations';
 
   constructor(private http: HttpClient) {}
 

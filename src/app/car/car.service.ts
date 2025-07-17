@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiService } from '../api.service';
 
 export interface Car {
   id: number;
@@ -16,27 +16,22 @@ export interface Car {
 
 @Injectable({ providedIn: 'root' })
 export class CarService {
-  private apiUrl = '/api/cars';
-
-  constructor(private http: HttpClient) {}
+  constructor(private api: ApiService) {}
 
   getCars(clientId?: number): Observable<Car[]> {
-    let params = new HttpParams();
-    if (clientId) {
-      params = params.set('clientId', clientId.toString());
-    }
-    return this.http.get<Car[]>(this.apiUrl, { params });
+    const params = clientId ? { clientId: clientId.toString() } : undefined;
+    return this.api.get<Car[]>('/cars', params);
   }
 
   addCar(car: Car): Observable<Car> {
-    return this.http.post<Car>(this.apiUrl, car);
+    return this.api.post<Car>('/cars', car);
   }
 
   updateCar(car: Car): Observable<Car> {
-    return this.http.put<Car>(`${this.apiUrl}/${car.id}`, car);
+    return this.api.put<Car>(`/cars/${car.id}`, car);
   }
 
   deleteCar(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.api.delete(`/cars/${id}`);
   }
 } 

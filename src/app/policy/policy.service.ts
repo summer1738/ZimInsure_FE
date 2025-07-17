@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiService } from '../api.service';
 
 export interface Policy {
   id: number;
@@ -17,26 +17,24 @@ export interface Policy {
 
 @Injectable({ providedIn: 'root' })
 export class PolicyService {
-  private apiUrl = '/api/policies';
-
-  constructor(private http: HttpClient) {}
+  constructor(private api: ApiService) {}
 
   getPolicies(clientId?: number, carId?: number): Observable<Policy[]> {
-    let params = new HttpParams();
-    if (clientId) params = params.set('clientId', clientId.toString());
-    if (carId) params = params.set('carId', carId.toString());
-    return this.http.get<Policy[]>(this.apiUrl, { params });
+    const params: any = {};
+    if (clientId) params.clientId = clientId.toString();
+    if (carId) params.carId = carId.toString();
+    return this.api.get<Policy[]>('/policies', Object.keys(params).length ? params : undefined);
   }
 
   addPolicy(policy: Policy): Observable<Policy> {
-    return this.http.post<Policy>(this.apiUrl, policy);
+    return this.api.post<Policy>('/policies', policy);
   }
 
   updatePolicy(policy: Policy): Observable<Policy> {
-    return this.http.put<Policy>(`${this.apiUrl}/${policy.id}`, policy);
+    return this.api.put<Policy>(`/policies/${policy.id}`, policy);
   }
 
   deletePolicy(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.api.delete(`/policies/${id}`);
   }
 } 

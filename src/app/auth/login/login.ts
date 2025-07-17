@@ -52,6 +52,7 @@ export class Login {
     this.loading = true;
     this.errorMessage = '';
     const { email, password } = this.loginForm.value;
+    console.log('Login form values:', this.loginForm.value);
     this.authService.login(email, password).subscribe({
       next: (res) => {
         this.loading = false;

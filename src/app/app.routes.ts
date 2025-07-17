@@ -18,6 +18,7 @@ import { ClientProfileComponent } from './client/client-profile.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
+  { path: 'auth/login', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
   {

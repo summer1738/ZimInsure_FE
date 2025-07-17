@@ -14,10 +14,10 @@ export class HttpErrorInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
           this.message.error('Session expired. Please log in again.');
-          this.router.navigate(['/auth/login']);
+          this.router.navigate(['/login']);
         } else if (error.status === 403) {
           this.message.error('You are not authorized to perform this action.');
-          this.router.navigate(['/auth/login']);
+          this.router.navigate(['/login']);
         } else if (error.status === 500) {
           this.message.error('A server error occurred. Please try again later.');
         } else if (error.error && typeof error.error === 'string') {
