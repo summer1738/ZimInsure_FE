@@ -5,6 +5,8 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CommonModule } from '@angular/common';
 import { NotificationService, Notification } from '../../notification/notification.service';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../auth/auth.service';
+import { ClientService } from '../../client/client.service';
 
 @Component({
   selector: 'app-header',
@@ -14,17 +16,30 @@ import { Subscription } from 'rxjs';
   styleUrl: './header.css'
 })
 export class Header implements OnInit, OnDestroy {
-  // TODO: Replace with real user info from authentication service
-  userName = 'John Doe';
+  userName: string = 'User';
   userRole: 'SUPER_ADMIN' | 'AGENT' | 'CLIENT' = 'SUPER_ADMIN';
   agentId: number = 1; // TODO: Replace with real agent id from auth
   clientId: number = 0; // TODO: Replace with real client id from auth
   unreadCount = 0;
   private notifSub?: Subscription;
 
-  constructor(private router: Router, private notificationService: NotificationService) {}
+  constructor(
+    private router: Router,
+    private notificationService: NotificationService,
+    private authService: AuthService,
+    private clientService: ClientService
+  ) { }
 
   ngOnInit() {
+    // Fetch full name for CLIENT or SUPER_ADMIN
+    this.clientService.getMyProfile().subscribe({
+      next: (profile) => {
+        this.userName = profile.fullName || 'User';
+      },
+      error: () => {
+        this.userName = this.authService.getUsername() || 'User';
+      }
+    });
     this.notifSub = this.notificationService.getNotifications().subscribe((notifs: Notification[]) => {
       let filtered: Notification[] = [];
       if (this.userRole === 'SUPER_ADMIN') {

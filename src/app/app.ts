@@ -17,10 +17,6 @@ export class App implements OnInit, OnDestroy {
 
   constructor(private insuranceService: InsuranceService, private http: HttpClient) {
     console.log('App component constructed');
-    this.http.get('/api/test').subscribe({
-      next: (res) => console.log('Test HTTP GET success', res),
-      error: (err) => console.log('Test HTTP GET error', err)
-    });
   }
 
   ngOnInit() {

@@ -4,7 +4,8 @@ import { ApiService } from '../api.service';
 
 export interface Client {
   id: number;
-  name: string;
+  fullName?: string;
+  name?: string;
   email: string;
   phone: string;
   address: string;
@@ -15,7 +16,7 @@ export interface Client {
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService) { }
 
   getClients(): Observable<Client[]> {
     return this.api.get<Client[]>('/clients');

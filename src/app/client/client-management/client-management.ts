@@ -10,6 +10,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 function createEmptyClient(): Client {
   return {
     id: 0,
+    fullName: '',
     name: '',
     email: '',
     phone: '',
@@ -79,7 +80,7 @@ export class ClientManagement {
         if (searchTerm.trim()) {
           const term = searchTerm.trim().toLowerCase();
           filtered = clients.filter(client =>
-            client.name.toLowerCase().includes(term) ||
+            (client.fullName || client.name || '').toLowerCase().includes(term) ||
             client.email.toLowerCase().includes(term) ||
             client.phone.toLowerCase().includes(term) ||
             client.address.toLowerCase().includes(term) ||
