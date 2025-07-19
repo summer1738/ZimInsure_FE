@@ -9,11 +9,19 @@ import { CommonModule } from '@angular/common';
 import { AddClientModal } from '../../client/add-client-modal';
 import { RouterModule } from '@angular/router';
 import { NotificationService } from '../../notification/notification-center/notification-center';
+import { NotificationCenter } from '../../notification/notification-center/notification-center';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 
 @Component({
   selector: 'app-agent-dashboard',
   standalone: true,
-  imports: [CommonModule, AddClientModal, RouterModule],
+  imports: [
+    CommonModule,
+    AddClientModal,
+    RouterModule,
+    NotificationCenter,
+    NzModalModule,
+  ],
   templateUrl: './agent-dashboard.html',
   styleUrl: './agent-dashboard.css'
 })
@@ -24,6 +32,11 @@ export class AgentDashboard {
 
   recentPolicies$: Observable<Policy[]>;
   recentQuotations$: Observable<Quotation[]>;
+
+  selectedCard: 'clients' | 'policies' | 'quotations' | null = null;
+  isModalVisible = false;
+  modalTitle = '';
+  modalContent: any[] = [];
 
   // For demo, hardcode agentId = 1
   public agentId = 1;
@@ -61,6 +74,31 @@ export class AgentDashboard {
 
   closeAddClientModal() {
     this.showAddClientModal = false;
+  }
+
+  openCardModal(card: 'clients' | 'policies' | 'quotations') {
+    this.selectedCard = card;
+    this.isModalVisible = true;
+    switch (card) {
+      case 'clients':
+        this.modalTitle = 'Assigned Clients';
+        this.modalContent = [{ name: 'Client 1' }, { name: 'Client 2' }];
+        break;
+      case 'policies':
+        this.modalTitle = 'Active Policies';
+        this.modalContent = [{ number: 'POL001' }, { number: 'POL002' }];
+        break;
+      case 'quotations':
+        this.modalTitle = 'Pending Quotations';
+        this.modalContent = [{ quote: 'Q-1001' }, { quote: 'Q-1002' }];
+        break;
+    }
+  }
+
+  closeModal() {
+    this.isModalVisible = false;
+    this.selectedCard = null;
+    this.modalContent = [];
   }
 
   handleAddClient({ client, cars }: { client: any, cars: any[] }) {

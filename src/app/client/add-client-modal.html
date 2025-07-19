@@ -1,9 +1,11 @@
-<div class="modal fade show" tabindex="-1" [ngStyle]="{display: visible ? 'block' : 'none', background: 'rgba(0,0,0,0.5)'}" style="z-index: 1050;" role="dialog">
+<div class="modal fade show" tabindex="-1"
+  [ngStyle]="{display: visible ? 'block' : 'none', background: 'rgba(0,0,0,0.5)'}" style="z-index: 1050;" role="dialog">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content shadow-lg">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title mb-0">Add Client</h5>
-        <button type="button" class="btn-close btn-close-white ms-auto" aria-label="Close" (click)="handleClose()"></button>
+        <button type="button" class="btn-close btn-close-white ms-auto" aria-label="Close"
+          (click)="handleClose()"></button>
       </div>
       <form (ngSubmit)="handleSubmit()">
         <div class="modal-body">
@@ -29,7 +31,8 @@
             </div>
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">ID Number</label>
-              <input class="form-control" [(ngModel)]="client.idNumber" name="idNumber" required pattern="\d{8,9}[A-Z]\d{2}" />
+              <input class="form-control" [(ngModel)]="client.idNumber" name="idNumber" required
+                pattern="\d{8,9}[A-Z]\d{2}" />
             </div>
             <div class="col-12 mb-3">
               <label class="font-weight-bold">Address</label>
@@ -38,6 +41,9 @@
             <div class="col-12 mb-3">
               <label class="font-weight-bold">Status</label>
               <input class="form-control" [(ngModel)]="client.status" name="status" required />
+            </div>
+            <div class="col-12 mb-2 text-info small">
+              Default password is <b>'ziminsure'</b>. The client will be prompted to change it on first login.
             </div>
           </div>
           <!-- Cars Section -->
@@ -48,7 +54,8 @@
             </div>
             <div *ngFor="let car of carsForClient; let i = index" class="row align-items-end mb-2">
               <div class="col-md-2 mb-2">
-                <input class="form-control" placeholder="Reg #" [(ngModel)]="car.regNumber" name="regNumber{{i}}" maxlength="7" required />
+                <input class="form-control" placeholder="Reg #" [(ngModel)]="car.regNumber" name="regNumber{{i}}"
+                  maxlength="7" required />
               </div>
               <div class="col-md-2 mb-2">
                 <input class="form-control" placeholder="Make" [(ngModel)]="car.make" name="make{{i}}" required />
@@ -57,7 +64,8 @@
                 <input class="form-control" placeholder="Model" [(ngModel)]="car.model" name="model{{i}}" required />
               </div>
               <div class="col-md-2 mb-2">
-                <input class="form-control" type="number" placeholder="Year" [(ngModel)]="car.year" name="year{{i}}" min="1900" [max]="currentYear" required />
+                <input class="form-control" type="number" placeholder="Year" [(ngModel)]="car.year" name="year{{i}}"
+                  min="1900" [max]="currentYear" required />
               </div>
               <div class="col-md-2 mb-2">
                 <input class="form-control" placeholder="Owner" [(ngModel)]="car.owner" name="owner{{i}}" required />
@@ -70,7 +78,8 @@
                 </select>
               </div>
               <div class="col-auto mb-2">
-                <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeCarForm(i)" [disabled]="carsForClient.length === 1">Remove</button>
+                <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeCarForm(i)"
+                  [disabled]="carsForClient.length === 1">Remove</button>
               </div>
             </div>
             <div *ngIf="carsForClient.length === 0" class="text-danger small">At least one car is required.</div>
@@ -83,4 +92,4 @@
       </form>
     </div>
   </div>
-</div> 
+</div>

@@ -15,6 +15,7 @@ function createEmptyAgent(): Agent {
     email: '',
     phone: '',
     idNumber: '',
+    address: '',
     status: '',
   };
 }
@@ -67,6 +68,7 @@ export class AgentManagement {
             agent.email.toLowerCase().includes(term) ||
             agent.phone.toLowerCase().includes(term) ||
             agent.idNumber.toLowerCase().includes(term) ||
+            agent.address.toLowerCase().includes(term) ||
             agent.status.toLowerCase().includes(term)
           );
         }

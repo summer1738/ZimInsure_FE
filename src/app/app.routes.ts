@@ -1,26 +1,27 @@
 import { Routes } from '@angular/router';
+import { Login } from './auth/login/login';
+import { Register } from './auth/register/register';
 import { MainLayout } from './layout/main-layout/main-layout';
+import { AuthGuard } from './auth/auth.guard';
+import { RoleGuard } from './auth/role.guard';
 import { SuperAdminDashboard } from './dashboard/super-admin-dashboard/super-admin-dashboard';
 import { AgentDashboard } from './dashboard/agent-dashboard/agent-dashboard';
 import { ClientDashboard } from './dashboard/client-dashboard/client-dashboard';
+import { ClientProfileComponent } from './client/client-profile.component';
 import { AgentManagement } from './agent/agent-management/agent-management';
 import { ClientManagement } from './client/client-management/client-management';
 import { CarManagement } from './car/car-management/car-management';
 import { PolicyManagement } from './policy/policy-management/policy-management';
 import { QuotationManagement } from './quotation/quotation-management/quotation-management';
 import { NotificationCenter } from './notification/notification-center/notification-center';
-import { Login } from './auth/login/login';
-import { Register } from './auth/register/register';
-import { Welcome } from './pages/welcome/welcome';
-import { AuthGuard } from './auth/auth.guard';
-import { RoleGuard } from './auth/role.guard';
-import { ClientProfileComponent } from './client/client-profile.component';
+import { ChangePassword } from './auth/change-password/change-password';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   { path: 'auth/login', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
+  { path: 'change-password', component: ChangePassword },
   {
     path: '',
     component: MainLayout,

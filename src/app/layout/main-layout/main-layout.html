@@ -3,8 +3,10 @@
   <div class="d-flex flex-grow-1">
     <app-sidebar class="bg-light border-end" style="min-width:220px;"></app-sidebar>
     <main class="flex-grow-1 p-4">
-      <app-notification-center></app-notification-center>
       <router-outlet></router-outlet>
     </main>
   </div>
+  <footer class="footer bg-gradient-footer">
+    &copy; {{ currentYear }} ZimInsure. All rights reserved.
+  </footer>
 </div>

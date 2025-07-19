@@ -1,1 +1,411 @@
-/* You can add global styles to this file, and also import other style files */
+/* Professional Color Theme */
+:root {
+    --primary: #2563eb;
+    --secondary: #64748b;
+    --accent: #f59e42;
+    --success: #22c55e;
+    --warning: #facc15;
+    --error: #ef4444;
+    --info: #0ea5e9;
+    --background: #f8fafc;
+    --surface: #fff;
+    --header-bg: #f1f5f9;
+    --card-bg: #fff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+}
+
+body {
+    background: var(--background);
+    color: var(--text);
+}
+
+.header,
+header,
+.app-header {
+    background: var(--header-bg) !important;
+    color: var(--text) !important;
+}
+
+.card,
+.ant-table,
+.modal-content,
+.bg-white {
+    background: var(--card-bg) !important;
+    color: var(--text) !important;
+}
+
+.border,
+.ant-table,
+.modal-content,
+.border-end {
+    border-color: var(--border) !important;
+}
+
+.btn-primary,
+.nz-btn-primary {
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: #fff !important;
+}
+
+.btn-secondary {
+    background: var(--secondary) !important;
+    border-color: var(--secondary) !important;
+    color: #fff !important;
+}
+
+.btn-success {
+    background: var(--success) !important;
+    border-color: var(--success) !important;
+    color: #fff !important;
+}
+
+.btn-warning {
+    background: var(--warning) !important;
+    border-color: var(--warning) !important;
+    color: #1e293b !important;
+}
+
+.btn-danger {
+    background: var(--error) !important;
+    border-color: var(--error) !important;
+    color: #fff !important;
+}
+
+.btn-info {
+    background: var(--info) !important;
+    border-color: var(--info) !important;
+    color: #fff !important;
+}
+
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.text-secondary {
+    color: var(--secondary) !important;
+}
+
+.text-success {
+    color: var(--success) !important;
+}
+
+.text-warning {
+    color: var(--warning) !important;
+}
+
+.text-danger {
+    color: var(--error) !important;
+}
+
+.text-info {
+    color: var(--info) !important;
+}
+
+.text-muted,
+.text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+.card {
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--card-bg) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+    text-align: center;
+}
+
+.card .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card .card-text {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    .card .card-title {
+        font-size: 1.05rem;
+    }
+
+    .card .card-text {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .card {
+        min-height: 80px;
+        padding: 0.5rem;
+    }
+}
+
+/* Dark Theme */
+body.dark-theme {
+    --primary: #2563eb;
+    --secondary: #64748b;
+    --accent: #f59e42;
+    --success: #22c55e;
+    --warning: #facc15;
+    --error: #ef4444;
+    --info: #0ea5e9;
+    --background: #181a1b;
+    --surface: #23272b;
+    --header-bg: #23272b;
+    --card-bg: #23272b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    background: var(--background);
+    color: var(--text);
+}
+
+body.dark-theme .header,
+body.dark-theme header,
+body.dark-theme .app-header {
+    background: var(--header-bg) !important;
+    color: var(--text) !important;
+}
+
+body.dark-theme .card,
+body.dark-theme .ant-table,
+body.dark-theme .modal-content,
+body.dark-theme .bg-white {
+    background: var(--card-bg) !important;
+    color: var(--text) !important;
+}
+
+body.dark-theme .border,
+body.dark-theme .ant-table,
+body.dark-theme .modal-content,
+body.dark-theme .border-end {
+    border-color: var(--border) !important;
+}
+
+body.dark-theme .btn-primary,
+body.dark-theme .nz-btn-primary {
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: #fff !important;
+}
+
+body.dark-theme .btn-secondary {
+    background: var(--secondary) !important;
+    border-color: var(--secondary) !important;
+    color: #fff !important;
+}
+
+body.dark-theme .btn-success {
+    background: var(--success) !important;
+    border-color: var(--success) !important;
+    color: #fff !important;
+}
+
+body.dark-theme .btn-warning {
+    background: var(--warning) !important;
+    border-color: var(--warning) !important;
+    color: #181a1b !important;
+}
+
+body.dark-theme .btn-danger {
+    background: var(--error) !important;
+    border-color: var(--error) !important;
+    color: #fff !important;
+}
+
+body.dark-theme .btn-info {
+    background: var(--info) !important;
+    border-color: var(--info) !important;
+    color: #fff !important;
+}
+
+body.dark-theme .text-primary {
+    color: var(--primary) !important;
+}
+
+body.dark-theme .text-secondary {
+    color: var(--secondary) !important;
+}
+
+body.dark-theme .text-success {
+    color: var(--success) !important;
+}
+
+body.dark-theme .text-warning {
+    color: var(--warning) !important;
+}
+
+body.dark-theme .text-danger {
+    color: var(--error) !important;
+}
+
+body.dark-theme .text-info {
+    color: var(--info) !important;
+}
+
+body.dark-theme .text-muted,
+body.dark-theme .text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+.btn.theme-toggle-btn {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Card color variants */
+.card.bg-primary {
+    background: var(--primary) !important;
+    color: #fff !important;
+}
+
+.card.bg-success {
+    background: var(--success) !important;
+    color: #fff !important;
+}
+
+.card.bg-warning {
+    background: var(--warning) !important;
+    color: #1e293b !important;
+}
+
+.card.bg-info {
+    background: var(--info) !important;
+    color: #fff !important;
+}
+
+.card.bg-accent {
+    background: var(--accent) !important;
+    color: #fff !important;
+}
+
+body.dark-theme .card.bg-primary {
+    background: var(--primary) !important;
+    color: #fff !important;
+}
+
+body.dark-theme .card.bg-success {
+    background: var(--success) !important;
+    color: #fff !important;
+}
+
+body.dark-theme .card.bg-warning {
+    background: var(--warning) !important;
+    color: #181a1b !important;
+}
+
+body.dark-theme .card.bg-info {
+    background: var(--info) !important;
+    color: #fff !important;
+}
+
+body.dark-theme .card.bg-accent {
+    background: var(--accent) !important;
+    color: #fff !important;
+}
+
+.bg-gradient-footer {
+    background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+    color: #fff !important;
+    border-top: 2px solid var(--border);
+}
+
+.footer {
+    width: 100%;
+    text-align: center;
+    padding: 1rem 0 0.5rem 0;
+    font-size: 0.95em;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    box-shadow: 0 -2px 8px 0 rgba(0, 0, 0, 0.04);
+    margin-top: auto;
+    /* This pushes the footer to the bottom */
+}
+
+body.dark-theme .footer {
+    background: var(--header-bg);
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+}
+
+body.dark-theme .bg-gradient-footer {
+    background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+    color: #fff !important;
+    border-top: 2px solid var(--border);
+}
+
+.bg-gradient-header {
+    background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%) !important;
+    color: #fff !important;
+}
+
+body.dark-theme .bg-gradient-header {
+    background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%) !important;
+    color: #fff !important;
+}
+
+.bg-gradient-card {
+    background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
+}
+
+body.dark-theme .bg-gradient-card {
+    background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.16);
+}
+
+/* Ensure the main layout takes full height */
+.d-flex.flex-column.min-vh-100 {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure the main content area grows to fill available space */
+main.flex-grow-1 {
+    flex: 1;
+    min-height: 0;
+    /* Allow content to shrink if needed */
+    padding-bottom: 80px;
+    /* Add padding to prevent content from being hidden behind fixed footer */
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 1rem 0 0.5rem 0;
+    font-size: 0.95em;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    box-shadow: 0 -2px 8px 0 rgba(0, 0, 0, 0.04);
+    z-index: 1000;
+    /* Ensure footer appears above other content */
+    flex-shrink: 0;
+    /* Prevent footer from shrinking */
+}

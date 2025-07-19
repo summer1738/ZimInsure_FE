@@ -2,47 +2,61 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Super Admin Dashboard</h2>
   </div>
-  <app-add-client-modal
-    [visible]="showAddClientModal"
-    [agentOptions]="agentOptions"
-    (close)="closeAddClientModal()"
+  <app-add-client-modal [visible]="showAddClientModal" [agentOptions]="agentOptions" (close)="closeAddClientModal()"
     (submit)="handleAddClient($event)">
   </app-add-client-modal>
+  <app-notification-center></app-notification-center>
   <!-- Stats Cards -->
-  <div class="row mb-4">
-    <div class="col-md-3 mb-3">
-      <div class="card text-bg-primary h-100 shadow-lg clickable-card" style="border-radius: 1rem; cursor:pointer;" (click)="openAddClientModal()">
-        <div class="card-body text-center">
+  <div class="row g-4 mb-4">
+    <div class="col-md-3 col-6">
+      <div class="card bg-gradient-card text-white h-100 shadow-lg clickable-card"
+        style="border-radius: 1rem; cursor:pointer;" (click)="openCardModal('clients')">
+        <div class="card-body">
           <h5 class="card-title">Clients</h5>
           <h2 class="card-text"><span *ngIf="totalClients$ | async as total">{{ total }}</span></h2>
         </div>
       </div>
     </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-bg-success h-100 shadow-lg clickable-card" style="border-radius: 1rem; cursor:pointer;" (click)="openAddClientModal()">
-        <div class="card-body text-center">
+    <div class="col-md-3 col-6">
+      <div class="card bg-gradient-card text-white h-100 shadow-lg clickable-card"
+        style="border-radius: 1rem; cursor:pointer;" (click)="openCardModal('cars')">
+        <div class="card-body">
           <h5 class="card-title">Cars</h5>
           <h2 class="card-text"><span *ngIf="totalCars$ | async as total">{{ total }}</span></h2>
         </div>
       </div>
     </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-bg-warning h-100 shadow-lg clickable-card" style="border-radius: 1rem; cursor:pointer;" (click)="openAddClientModal()">
-        <div class="card-body text-center">
+    <div class="col-md-3 col-6">
+      <div class="card bg-gradient-card text-white h-100 shadow-lg clickable-card"
+        style="border-radius: 1rem; cursor:pointer;" (click)="openCardModal('policies')">
+        <div class="card-body">
           <h5 class="card-title">Policies</h5>
           <h2 class="card-text"><span *ngIf="totalPolicies$ | async as total">{{ total }}</span></h2>
         </div>
       </div>
     </div>
-    <div class="col-md-3 mb-3">
-      <div class="card text-bg-info h-100 shadow-lg clickable-card" style="border-radius: 1rem; cursor:pointer;" (click)="openAddClientModal()">
-        <div class="card-body text-center">
+    <div class="col-md-3 col-6">
+      <div class="card bg-gradient-card text-white h-100 shadow-lg clickable-card"
+        style="border-radius: 1rem; cursor:pointer;" (click)="openCardModal('quotations')">
+        <div class="card-body">
           <h5 class="card-title">Quotations</h5>
           <h2 class="card-text"><span *ngIf="totalQuotations$ | async as total">{{ total }}</span></h2>
         </div>
       </div>
     </div>
   </div>
+
+  <nz-modal [(nzVisible)]="isModalVisible" [nzTitle]="modalTitle" (nzOnCancel)="closeModal()" [nzFooter]="null">
+    <ul *ngIf="modalContent.length > 0">
+      <li *ngFor="let item of modalContent">
+        <span *ngIf="selectedCard === 'clients'">{{ item.name }}</span>
+        <span *ngIf="selectedCard === 'cars'">{{ item.reg }}</span>
+        <span *ngIf="selectedCard === 'policies'">{{ item.number }}</span>
+        <span *ngIf="selectedCard === 'quotations'">{{ item.quote }}</span>
+      </li>
+    </ul>
+    <div *ngIf="modalContent.length === 0">No data available.</div>
+  </nz-modal>
 
   <!-- Quick Links -->
   <div class="mb-4">

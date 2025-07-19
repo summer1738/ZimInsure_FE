@@ -1,6 +1,6 @@
 <div class="mb-3 d-flex justify-content-between align-items-center">
   <input #searchBox type="text" class="form-control w-auto" style="min-width: 250px;" placeholder="Search clients..."
-         (input)="onSearch(searchBox.value)">
+    (input)="onSearch(searchBox.value)">
   <button class="btn btn-primary" (click)="showAddModal()">Add Client</button>
 </div>
 
@@ -8,12 +8,18 @@
   <table class="ant-table" style="width: 100%;">
     <thead class="ant-table-thead">
       <tr>
-        <th (click)="onSort('name')" style="cursor:pointer;">Name <span *ngIf="sortColumn$.value === 'name'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
-        <th (click)="onSort('email')" style="cursor:pointer;">Email <span *ngIf="sortColumn$.value === 'email'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
-        <th (click)="onSort('phone')" style="cursor:pointer;">Phone <span *ngIf="sortColumn$.value === 'phone'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
-        <th (click)="onSort('address')" style="cursor:pointer;">Address <span *ngIf="sortColumn$.value === 'address'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
-        <th (click)="onSort('idNumber')" style="cursor:pointer;">ID Number <span *ngIf="sortColumn$.value === 'idNumber'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
-        <th (click)="onSort('status')" style="cursor:pointer;">Status <span *ngIf="sortColumn$.value === 'status'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('name')" style="cursor:pointer;">Name <span *ngIf="sortColumn$.value === 'name'">{{
+            sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('email')" style="cursor:pointer;">Email <span *ngIf="sortColumn$.value === 'email'">{{
+            sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('phone')" style="cursor:pointer;">Phone <span *ngIf="sortColumn$.value === 'phone'">{{
+            sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('address')" style="cursor:pointer;">Address <span *ngIf="sortColumn$.value === 'address'">{{
+            sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('idNumber')" style="cursor:pointer;">ID Number <span
+            *ngIf="sortColumn$.value === 'idNumber'">{{ sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('status')" style="cursor:pointer;">Status <span *ngIf="sortColumn$.value === 'status'">{{
+            sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -53,7 +59,9 @@
 </nav>
 
 <!-- Modern Bootstrap Modal for Add/Edit Client -->
-<div class="modal fade show" tabindex="-1" [ngStyle]="{display: isModalVisible ? 'block' : 'none', background: 'rgba(0,0,0,0.5)'}" style="z-index: 1050;" role="dialog">
+<div class="modal fade show" tabindex="-1"
+  [ngStyle]="{display: isModalVisible ? 'block' : 'none', background: 'rgba(0,0,0,0.5)'}" style="z-index: 1050;"
+  role="dialog">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content shadow-lg">
       <div class="modal-header bg-primary text-white">
@@ -61,7 +69,8 @@
           <!-- <i class='bi bi-person'></i> -->
           {{ isEditMode ? 'Edit Client' : 'Add Client' }}
         </h5>
-        <button type="button" class="btn-close btn-close-white ms-auto" aria-label="Close" (click)="handleModalCancel()"></button>
+        <button type="button" class="btn-close btn-close-white ms-auto" aria-label="Close"
+          (click)="handleModalCancel()"></button>
       </div>
       <form #clientForm="ngForm" (ngSubmit)="handleModalOk(selectedClient)">
         <div class="modal-body">
@@ -80,7 +89,8 @@
             </div>
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">ID Number</label>
-              <input class="form-control" [(ngModel)]="selectedClient.idNumber" name="idNumber" required pattern="\d{8,9}[A-Z]\d{2}" #idNumberInput="ngModel" />
+              <input class="form-control" [(ngModel)]="selectedClient.idNumber" name="idNumber" required
+                pattern="\d{8,9}[A-Z]\d{2}" #idNumberInput="ngModel" />
               <div *ngIf="idNumberInput.invalid && idNumberInput.touched" class="text-danger small">
                 Please enter a valid ID number (e.g., 422018163T42).
               </div>
@@ -93,6 +103,9 @@
               <label class="font-weight-bold">Status</label>
               <input class="form-control" [(ngModel)]="selectedClient.status" name="status" required />
             </div>
+            <div class="col-12 mb-2 text-info small">
+              Default password is <b>'ziminsure'</b>. The client will be prompted to change it on first login.
+            </div>
           </div>
           <!-- Cars Section -->
           <div class="border rounded p-3 mt-3 bg-light">
@@ -102,7 +115,8 @@
             </div>
             <div *ngFor="let car of carsForClient; let i = index" class="row align-items-end mb-2">
               <div class="col-md-2 mb-2">
-                <input class="form-control" placeholder="Reg #" [(ngModel)]="car.regNumber" name="regNumber{{i}}" maxlength="7" required />
+                <input class="form-control" placeholder="Reg #" [(ngModel)]="car.regNumber" name="regNumber{{i}}"
+                  maxlength="7" required />
               </div>
               <div class="col-md-2 mb-2">
                 <input class="form-control" placeholder="Make" [(ngModel)]="car.make" name="make{{i}}" required />
@@ -111,7 +125,8 @@
                 <input class="form-control" placeholder="Model" [(ngModel)]="car.model" name="model{{i}}" required />
               </div>
               <div class="col-md-2 mb-2">
-                <input class="form-control" type="number" placeholder="Year" [(ngModel)]="car.year" name="year{{i}}" min="1900" max="{{ currentYear }}" required />
+                <input class="form-control" type="number" placeholder="Year" [(ngModel)]="car.year" name="year{{i}}"
+                  min="1900" max="{{ currentYear }}" required />
               </div>
               <div class="col-md-2 mb-2">
                 <input class="form-control" placeholder="Owner" [(ngModel)]="car.owner" name="owner{{i}}" required />
@@ -124,7 +139,8 @@
                 </select>
               </div>
               <div class="col-auto mb-2">
-                <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeCarForm(i)" [disabled]="carsForClient.length === 1">Remove</button>
+                <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeCarForm(i)"
+                  [disabled]="carsForClient.length === 1">Remove</button>
               </div>
             </div>
             <div *ngIf="carsForClient.length === 0" class="text-danger small">At least one car is required.</div>

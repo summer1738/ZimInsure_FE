@@ -13,4 +13,5 @@ import { NotificationCenter } from '../../notification/notification-center/notif
   styleUrl: './main-layout.css'
 })
 export class MainLayout {
+  currentYear = new Date().getFullYear();
 }

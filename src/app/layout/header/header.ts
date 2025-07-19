@@ -21,6 +21,7 @@ export class Header implements OnInit, OnDestroy {
   agentId: number = 1; // TODO: Replace with real agent id from auth
   clientId: number = 0; // TODO: Replace with real client id from auth
   unreadCount = 0;
+  darkMode = false;
   private notifSub?: Subscription;
 
   constructor(
@@ -31,6 +32,10 @@ export class Header implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    // Restore dark mode preference
+    const darkPref = localStorage.getItem('darkMode');
+    this.darkMode = darkPref === 'true';
+    this.applyDarkMode();
     // Fetch full name for CLIENT or SUPER_ADMIN
     this.clientService.getMyProfile().subscribe({
       next: (profile) => {
@@ -64,5 +69,19 @@ export class Header implements OnInit, OnDestroy {
   logout() {
     // TODO: Clear auth tokens and redirect to login
     this.router.navigate(['/login']);
+  }
+
+  toggleDarkMode() {
+    this.darkMode = !this.darkMode;
+    localStorage.setItem('darkMode', this.darkMode ? 'true' : 'false');
+    this.applyDarkMode();
+  }
+
+  applyDarkMode() {
+    if (this.darkMode) {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
   }
 }

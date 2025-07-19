@@ -8,12 +8,13 @@ export interface Agent {
   email: string;
   phone: string;
   idNumber: string;
+  address: string;
   status: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AgentService {
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService) { }
 
   getAgents(): Observable<Agent[]> {
     return this.api.get<Agent[]>('/agents');

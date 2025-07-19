@@ -8,6 +8,7 @@ export interface LoginResponse {
   token: string;
   role: string;
   username: string;
+  passwordChangeRequired?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -18,7 +19,7 @@ export class AuthService {
   private loggedIn$ = new BehaviorSubject<boolean>(this.hasToken());
   private refreshTokenKey = 'refresh_token';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
   private isBrowser(): boolean {
     return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';

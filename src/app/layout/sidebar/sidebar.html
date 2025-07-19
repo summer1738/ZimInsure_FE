@@ -1,11 +1,21 @@
 <nav class="nav flex-column nav-pills p-3">
-  <a *ngIf="role === 'SUPER_ADMIN'" class="nav-link" routerLink="/dashboard/super-admin" routerLinkActive="active">Super Admin Dashboard</a>
-  <a *ngIf="role === 'AGENT'" class="nav-link" routerLink="/dashboard/agent" routerLinkActive="active">Agent Dashboard</a>
-  <a *ngIf="role === 'CLIENT'" class="nav-link" routerLink="/dashboard/client" routerLinkActive="active">Client Dashboard</a>
-  <a *ngIf="role === 'SUPER_ADMIN'" class="nav-link" routerLink="/agents" routerLinkActive="active">Agent Management</a>
-  <a *ngIf="role === 'AGENT' || role === 'SUPER_ADMIN'" class="nav-link" routerLink="/clients" routerLinkActive="active">Client Management</a>
-  <a *ngIf="role === 'AGENT' || role === 'CLIENT'" class="nav-link" routerLink="/cars" routerLinkActive="active">Car Management</a>
-  <a *ngIf="role !== 'CLIENT'" class="nav-link" routerLink="/policies" routerLinkActive="active">Policy Management</a>
-  <a *ngIf="role === 'AGENT' || role === 'CLIENT'" class="nav-link" routerLink="/quotations" routerLinkActive="active">Quotations</a>
-  <a class="nav-link" routerLink="/notifications" routerLinkActive="active">Notifications</a>
+  <h5 class="mb-3 text-primary">Quick Links</h5>
+  <a *ngIf="role === 'SUPER_ADMIN'" class="nav-link" routerLink="/dashboard/super-admin" routerLinkActive="active"><i
+      class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+  <a *ngIf="role === 'AGENT'" class="nav-link" routerLink="/dashboard/agent" routerLinkActive="active"><i
+      class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+  <a *ngIf="role === 'CLIENT'" class="nav-link" routerLink="/dashboard/client" routerLinkActive="active"><i
+      class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+  <a *ngIf="role === 'SUPER_ADMIN'" class="nav-link" routerLink="/agents" routerLinkActive="active"><i
+      class="bi bi-person-badge me-2"></i>Agent Management</a>
+  <a *ngIf="role === 'AGENT' || role === 'SUPER_ADMIN'" class="nav-link" routerLink="/clients"
+    routerLinkActive="active"><i class="bi bi-people me-2"></i>Client Management</a>
+  <a *ngIf="role === 'AGENT' || role === 'CLIENT'" class="nav-link" routerLink="/cars" routerLinkActive="active"><i
+      class="bi bi-car-front me-2"></i>Car Management</a>
+  <a *ngIf="role !== 'CLIENT'" class="nav-link" routerLink="/policies" routerLinkActive="active"><i
+      class="bi bi-file-earmark-text me-2"></i>Policy Management</a>
+  <a *ngIf="role === 'AGENT' || role === 'CLIENT'" class="nav-link" routerLink="/quotations"
+    routerLinkActive="active"><i class="bi bi-cash-coin me-2"></i>Quotations</a>
+  <a class="nav-link" routerLink="/notifications" routerLinkActive="active"><i
+      class="bi bi-bell me-2"></i>Notifications</a>
 </nav>

@@ -56,6 +56,11 @@ export class Login {
     this.authService.login(email, password).subscribe({
       next: (res) => {
         this.loading = false;
+        if ((res as any).passwordChangeRequired) {
+          this.message.info('You must change your password before proceeding.');
+          this.router.navigate(['/change-password']); // Implement this route/page
+          return;
+        }
         // Redirect based on role
         if (res.role === 'SUPER_ADMIN') {
           this.router.navigate(['/dashboard/super-admin']);
