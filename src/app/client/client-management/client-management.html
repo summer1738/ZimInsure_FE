@@ -25,7 +25,7 @@
     </thead>
     <tbody class="ant-table-tbody">
       <tr *ngFor="let client of (filteredClients$ | async) || []">
-        <td>{{ client.name }}</td>
+        <td>{{ client.full_name }}</td>
         <td>{{ client.email }}</td>
         <td>{{ client.phone }}</td>
         <td>{{ client.address }}</td>
@@ -77,7 +77,7 @@
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Name</label>
-              <input class="form-control" [(ngModel)]="selectedClient.name" name="name" required />
+              <input class="form-control" [(ngModel)]="selectedClient.full_name" name="full_name" required />
             </div>
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Email</label>

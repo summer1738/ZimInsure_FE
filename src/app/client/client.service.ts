@@ -4,14 +4,13 @@ import { ApiService } from '../api.service';
 
 export interface Client {
   id: number;
-  fullName?: string;
-  name?: string;
+  full_name: string;
   email: string;
   phone: string;
-  address: string;
   idNumber: string;
+  address: string;
   status: string;
-  agentId: number;
+  agentId?: number;
 }
 
 @Injectable({ providedIn: 'root' })

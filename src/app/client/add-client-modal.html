@@ -7,40 +7,68 @@
         <button type="button" class="btn-close btn-close-white ms-auto" aria-label="Close"
           (click)="handleClose()"></button>
       </div>
-      <form (ngSubmit)="handleSubmit()">
+      <div class="alert alert-info m-3">
+        <ul class="mb-0">
+          <li>All fields are required unless marked optional.</li>
+          <li>Assign the client to an agent if you are a super admin.</li>
+          <li>At least one car is required for each client.</li>
+          <li>Default password is <b>'ziminsure'</b>; the client will be prompted to change it on first login.</li>
+        </ul>
+      </div>
+      <form #clientForm="ngForm" (ngSubmit)="handleSubmit()">
         <div class="modal-body">
           <div class="row">
             <div *ngIf="agentId === null" class="col-12 mb-3">
               <label class="font-weight-bold">Assign to Agent</label>
-              <select class="form-select" [(ngModel)]="client.agentId" name="agentId" required>
+              <select class="form-select" [(ngModel)]="client.agentId" name="agentId" required #agentIdInput="ngModel"
+                [class.is-invalid]="agentIdInput.invalid && agentIdInput.touched">
                 <option value="">Select agent</option>
                 <option *ngFor="let agent of agentOptions" [value]="agent.id">{{ agent.name }}</option>
               </select>
+              <div *ngIf="agentIdInput.invalid && agentIdInput.touched" class="text-danger small">Agent is required.
+              </div>
             </div>
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Name</label>
-              <input class="form-control" [(ngModel)]="client.name" name="name" required />
+              <input class="form-control" [(ngModel)]="client.full_name" name="full_name" required
+                #fullNameInput="ngModel" [class.is-invalid]="fullNameInput.invalid && fullNameInput.touched" />
+              <div *ngIf="fullNameInput.invalid && fullNameInput.touched" class="text-danger small">Name is required.
+              </div>
             </div>
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Email</label>
-              <input class="form-control" type="email" [(ngModel)]="client.email" name="email" required />
+              <input class="form-control" type="email" [(ngModel)]="client.email" name="email" required
+                #emailInput="ngModel" [class.is-invalid]="emailInput.invalid && emailInput.touched" />
+              <div *ngIf="emailInput.invalid && emailInput.touched" class="text-danger small">Valid email is required.
+              </div>
             </div>
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Phone</label>
-              <input class="form-control" [(ngModel)]="client.phone" name="phone" required />
+              <input class="form-control" [(ngModel)]="client.phone" name="phone" required #phoneInput="ngModel"
+                [class.is-invalid]="phoneInput.invalid && phoneInput.touched" />
+              <div *ngIf="phoneInput.invalid && phoneInput.touched" class="text-danger small">Phone is required.</div>
             </div>
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">ID Number</label>
               <input class="form-control" [(ngModel)]="client.idNumber" name="idNumber" required
-                pattern="\d{8,9}[A-Z]\d{2}" />
+                pattern="\d{8,9}[A-Z]\d{2}" #idNumberInput="ngModel"
+                [class.is-invalid]="idNumberInput.invalid && idNumberInput.touched" />
+              <div *ngIf="idNumberInput.invalid && idNumberInput.touched" class="text-danger small">Valid ID Number is
+                required (e.g., 422018163T42).</div>
             </div>
             <div class="col-12 mb-3">
               <label class="font-weight-bold">Address</label>
-              <input class="form-control" [(ngModel)]="client.address" name="address" required />
+              <input class="form-control" [(ngModel)]="client.address" name="address" required #addressInput="ngModel"
+                [class.is-invalid]="addressInput.invalid && addressInput.touched" />
+              <div *ngIf="addressInput.invalid && addressInput.touched" class="text-danger small">Address is required.
+              </div>
             </div>
             <div class="col-12 mb-3">
               <label class="font-weight-bold">Status</label>
-              <input class="form-control" [(ngModel)]="client.status" name="status" required />
+              <input class="form-control" [(ngModel)]="client.status" name="status" required #statusInput="ngModel"
+                [class.is-invalid]="statusInput.invalid && statusInput.touched" />
+              <div *ngIf="statusInput.invalid && statusInput.touched" class="text-danger small">Status is required.
+              </div>
             </div>
             <div class="col-12 mb-2 text-info small">
               Default password is <b>'ziminsure'</b>. The client will be prompted to change it on first login.
@@ -52,30 +80,45 @@
               <label class="font-weight-bold mb-0">Cars <span class="text-danger">*</span></label>
               <button type="button" class="btn btn-sm btn-outline-success" (click)="addCarForm()">Add Car</button>
             </div>
-            <div *ngFor="let car of carsForClient; let i = index" class="row align-items-end mb-2">
+            <div *ngFor="let car of carsForClient; let i = index" [ngModelGroup]="'car' + i"
+              class="row align-items-end mb-2">
               <div class="col-md-2 mb-2">
-                <input class="form-control" placeholder="Reg #" [(ngModel)]="car.regNumber" name="regNumber{{i}}"
-                  maxlength="7" required />
+                <input class="form-control" placeholder="Reg #" [(ngModel)]="car.regNumber" name="regNumber"
+                  maxlength="7" required #regNumberInput="ngModel"
+                  [class.is-invalid]="regNumberInput.invalid && regNumberInput.touched" />
+                <div *ngIf="regNumberInput.invalid && regNumberInput.touched" class="text-danger small">Reg # is
+                  required.</div>
               </div>
               <div class="col-md-2 mb-2">
-                <input class="form-control" placeholder="Make" [(ngModel)]="car.make" name="make{{i}}" required />
+                <input class="form-control" placeholder="Make" [(ngModel)]="car.make" name="make" required
+                  #makeInput="ngModel" [class.is-invalid]="makeInput.invalid && makeInput.touched" />
+                <div *ngIf="makeInput.invalid && makeInput.touched" class="text-danger small">Make is required.</div>
               </div>
               <div class="col-md-2 mb-2">
-                <input class="form-control" placeholder="Model" [(ngModel)]="car.model" name="model{{i}}" required />
+                <input class="form-control" placeholder="Model" [(ngModel)]="car.model" name="model" required
+                  #modelInput="ngModel" [class.is-invalid]="modelInput.invalid && modelInput.touched" />
+                <div *ngIf="modelInput.invalid && modelInput.touched" class="text-danger small">Model is required.</div>
               </div>
               <div class="col-md-2 mb-2">
-                <input class="form-control" type="number" placeholder="Year" [(ngModel)]="car.year" name="year{{i}}"
-                  min="1900" [max]="currentYear" required />
+                <input class="form-control" type="number" placeholder="Year" [(ngModel)]="car.year" name="year"
+                  min="1900" [max]="currentYear" required #yearInput="ngModel"
+                  [class.is-invalid]="yearInput.invalid && yearInput.touched" />
+                <div *ngIf="yearInput.invalid && yearInput.touched" class="text-danger small">Year is required.</div>
               </div>
               <div class="col-md-2 mb-2">
-                <input class="form-control" placeholder="Owner" [(ngModel)]="car.owner" name="owner{{i}}" required />
+                <input class="form-control" placeholder="Owner" [(ngModel)]="car.owner" name="owner" required
+                  #ownerInput="ngModel" [class.is-invalid]="ownerInput.invalid && ownerInput.touched" />
+                <div *ngIf="ownerInput.invalid && ownerInput.touched" class="text-danger small">Owner is required.</div>
               </div>
               <div class="col-md-2 mb-2">
-                <select class="form-select" [(ngModel)]="car.status" name="status{{i}}" required>
+                <select class="form-select" [(ngModel)]="car.status" name="status" required #carStatusInput="ngModel"
+                  [class.is-invalid]="carStatusInput.invalid && carStatusInput.touched">
                   <option value="">Status</option>
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
+                <div *ngIf="carStatusInput.invalid && carStatusInput.touched" class="text-danger small">Status is
+                  required.</div>
               </div>
               <div class="col-auto mb-2">
                 <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeCarForm(i)"
@@ -86,9 +129,13 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Add</button>
+          <button type="submit" class="btn btn-success" [disabled]="!clientForm.form.valid">Add</button>
           <button type="button" class="btn btn-outline-secondary" (click)="handleClose()">Cancel</button>
         </div>
+        <div *ngIf="!clientForm.form.valid && clientForm.submitted" class="alert alert-danger m-3">
+          Please fill in all required fields correctly before submitting.
+        </div>
+        <pre>{{ clientForm.form | json }}</pre>
       </form>
     </div>
   </div>

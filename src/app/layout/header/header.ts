@@ -39,7 +39,7 @@ export class Header implements OnInit, OnDestroy {
     // Fetch full name for CLIENT or SUPER_ADMIN
     this.clientService.getMyProfile().subscribe({
       next: (profile) => {
-        this.userName = profile.fullName || 'User';
+        this.userName = profile.full_name || 'User';
       },
       error: () => {
         this.userName = this.authService.getUsername() || 'User';

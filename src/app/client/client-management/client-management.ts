@@ -10,8 +10,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 function createEmptyClient(): Client {
   return {
     id: 0,
-    fullName: '',
-    name: '',
+    full_name: '',
     email: '',
     phone: '',
     address: '',
@@ -80,7 +79,7 @@ export class ClientManagement {
         if (searchTerm.trim()) {
           const term = searchTerm.trim().toLowerCase();
           filtered = clients.filter(client =>
-            (client.fullName || client.name || '').toLowerCase().includes(term) ||
+            (client.full_name || '').toLowerCase().includes(term) ||
             client.email.toLowerCase().includes(term) ||
             client.phone.toLowerCase().includes(term) ||
             client.address.toLowerCase().includes(term) ||
@@ -125,7 +124,16 @@ export class ClientManagement {
   }
 
   showAddModal() {
-    this.selectedClient = createEmptyClient();
+    this.selectedClient = {
+      id: 0,
+      full_name: '',
+      email: '',
+      phone: '',
+      idNumber: '',
+      address: '',
+      status: '',
+      agentId: undefined
+    };
     this.isEditMode = false;
     this.isModalVisible = true;
     this.carsForClient = [createEmptyCarForClient()];

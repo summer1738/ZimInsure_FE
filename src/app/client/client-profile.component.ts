@@ -11,7 +11,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
   template: `
     <h2>My Profile</h2>
     <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-      <label>Name: <input formControlName="name"></label><br>
+      <label>Full Name: <input formControlName="full_name"></label><br>
       <label>Email: <input formControlName="email"></label><br>
       <label>Phone: <input formControlName="phone"></label><br>
       <label>Address: <input formControlName="address"></label><br>
@@ -34,7 +34,7 @@ export class ClientProfileComponent implements OnInit {
     private message: NzMessageService
   ) {
     this.profileForm = this.fb.group({
-      name: ['', Validators.required],
+      full_name: ['', Validators.required],
       email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
       phone: ['', Validators.required],
       address: ['', Validators.required],

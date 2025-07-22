@@ -37,7 +37,7 @@ export class Register {
 
   constructor(private fb: FormBuilder, private router: Router, private authService: AuthService, private message: NzMessageService) {
     this.registerForm = this.fb.group({
-      fullName: ['', [Validators.required]],
+      full_name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],

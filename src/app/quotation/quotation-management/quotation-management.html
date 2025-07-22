@@ -1,6 +1,6 @@
 <div class="mb-3 d-flex justify-content-between align-items-center">
   <input #searchBox type="text" class="form-control w-auto" style="min-width: 250px;" placeholder="Search quotations..."
-         (input)="onSearch(searchBox.value)">
+    (input)="onSearch(searchBox.value)">
   <button *ngIf="canEditDelete" class="btn btn-primary" (click)="showAddModal()">Add Quotation</button>
 </div>
 
@@ -8,13 +8,20 @@
   <table class="ant-table" style="width: 100%;">
     <thead class="ant-table-thead">
       <tr>
-        <th (click)="onSort('quotationNumber')" style="cursor:pointer;">Quotation # <span *ngIf="sortColumn === 'quotationNumber'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
-        <th (click)="onSort('client')" style="cursor:pointer;">Client <span *ngIf="sortColumn === 'client'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
-        <th (click)="onSort('policyType')" style="cursor:pointer;">Policy Type <span *ngIf="sortColumn === 'policyType'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
-        <th (click)="onSort('amount')" style="cursor:pointer;">Amount <span *ngIf="sortColumn === 'amount'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
-        <th (click)="onSort('status')" style="cursor:pointer;">Status <span *ngIf="sortColumn === 'status'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
-        <th (click)="onSort('createdDate')" style="cursor:pointer;">Date <span *ngIf="sortColumn === 'createdDate'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
-        <th (click)="onSort('car')" style="cursor:pointer;">Reg Number <span *ngIf="sortColumn === 'car'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('quotationNumber')" style="cursor:pointer;">Quotation # <span
+            *ngIf="sortColumn === 'quotationNumber'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('client')" style="cursor:pointer;">Client <span *ngIf="sortColumn === 'client'">{{
+            sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('policyType')" style="cursor:pointer;">Policy Type <span
+            *ngIf="sortColumn === 'policyType'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('amount')" style="cursor:pointer;">Amount <span *ngIf="sortColumn === 'amount'">{{
+            sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('status')" style="cursor:pointer;">Status <span *ngIf="sortColumn === 'status'">{{
+            sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('createdDate')" style="cursor:pointer;">Date <span *ngIf="sortColumn === 'createdDate'">{{
+            sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+        <th (click)="onSort('car')" style="cursor:pointer;">Reg Number <span *ngIf="sortColumn === 'car'">{{
+            sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -28,8 +35,10 @@
         <td>{{ quotation.createdDate }}</td>
         <td>{{ quotation.car?.regNumber || '-' }}</td>
         <td>
-          <button class="btn btn-secondary btn-sm" (click)="showEditModal(quotation)" *ngIf="canEditDelete">Edit</button>
-          <button class="btn btn-danger btn-sm" (click)="deleteQuotation(quotation.id)" *ngIf="canEditDelete">Delete</button>
+          <button class="btn btn-secondary btn-sm" (click)="showEditModal(quotation)"
+            *ngIf="canEditDelete">Edit</button>
+          <button class="btn btn-danger btn-sm" (click)="deleteQuotation(quotation.id)"
+            *ngIf="canEditDelete">Delete</button>
         </td>
       </tr>
       <tr *ngIf="filteredQuotations.length === 0">
@@ -55,21 +64,26 @@
 </nav>
 
 <!-- Modern Bootstrap Modal for Add/Edit Quotation -->
-<div class="modal fade show" tabindex="-1" [ngStyle]="{display: isModalVisible ? 'block' : 'none', background: 'rgba(0,0,0,0.5)'}" style="z-index: 1050;" role="dialog">
+<div class="modal fade show" tabindex="-1"
+  [ngStyle]="{display: isModalVisible ? 'block' : 'none', background: 'rgba(0,0,0,0.5)'}" style="z-index: 1050;"
+  role="dialog">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content shadow-lg">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title mb-0">
           {{ isEditMode ? 'Edit Quotation' : 'Add Quotation' }}
         </h5>
-        <button type="button" class="btn-close btn-close-white ms-auto" aria-label="Close" (click)="handleModalCancel()"></button>
+        <button type="button" class="btn-close btn-close-white ms-auto" aria-label="Close"
+          (click)="handleModalCancel()"></button>
       </div>
       <form #quotationForm="ngForm" (ngSubmit)="handleModalOk(selectedQuotation)">
         <div class="modal-body">
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Quotation Number</label>
-              <input class="form-control" [(ngModel)]="selectedQuotation.quotationNumber" name="quotationNumber" required #quotationNumberInput="ngModel" [class.is-invalid]="quotationNumberInput.invalid && quotationNumberInput.touched" />
+              <input class="form-control" [(ngModel)]="selectedQuotation.quotationNumber" name="quotationNumber"
+                required #quotationNumberInput="ngModel"
+                [class.is-invalid]="quotationNumberInput.invalid && quotationNumberInput.touched" />
               <div *ngIf="quotationNumberInput.invalid && quotationNumberInput.touched" class="text-danger small">
                 Quotation number is required.
               </div>
@@ -77,13 +91,15 @@
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Client</label>
               <ng-container *ngIf="currentRole === 'CLIENT'; else clientSelect">
-                <input class="form-control" [value]="clients[0]?.name" readonly />
+                <input class="form-control" [value]="clients[0]?.full_name" readonly />
               </ng-container>
               <ng-template #clientSelect>
-                <select class="form-control" [(ngModel)]="selectedQuotation.client" name="client" required #clientInput="ngModel" [class.is-invalid]="clientInput.invalid && clientInput.touched" (ngModelChange)="onClientChange()">
+                <select class="form-control" [(ngModel)]="selectedQuotation.client" name="client" required
+                  #clientInput="ngModel" [class.is-invalid]="clientInput.invalid && clientInput.touched"
+                  (ngModelChange)="onClientChange()">
                   <option [ngValue]="undefined" disabled selected>Select client</option>
-                  <option *ngFor="let client of clients" [ngValue]="{id: client.id, fullName: client.name}">
-                    {{ client.name }} ({{ client.id }})
+                  <option *ngFor="let client of clients" [ngValue]="{id: client.id, fullName: client.full_name}">
+                    {{ client.full_name }} ({{ client.id }})
                   </option>
                 </select>
                 <div *ngIf="clientInput.invalid && clientInput.touched" class="text-danger small">
@@ -97,7 +113,8 @@
             </div>
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Amount</label>
-              <input class="form-control" type="number" [(ngModel)]="selectedQuotation.amount" name="amount" required min="1" #amountInput="ngModel" [class.is-invalid]="amountInput.invalid && amountInput.touched" />
+              <input class="form-control" type="number" [(ngModel)]="selectedQuotation.amount" name="amount" required
+                min="1" #amountInput="ngModel" [class.is-invalid]="amountInput.invalid && amountInput.touched" />
               <div *ngIf="amountInput.invalid && amountInput.touched" class="text-danger small">
                 Amount is required and must be greater than 0.
               </div>
@@ -108,11 +125,13 @@
             </div>
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Date</label>
-              <input class="form-control" type="date" [(ngModel)]="selectedQuotation.createdDate" name="createdDate" required />
+              <input class="form-control" type="date" [(ngModel)]="selectedQuotation.createdDate" name="createdDate"
+                required />
             </div>
             <div class="col-12 mb-3">
               <label class="font-weight-bold">Car</label>
-              <select class="form-control" [(ngModel)]="selectedQuotation.car" name="car" required #carInput="ngModel" [class.is-invalid]="carInput.invalid && carInput.touched">
+              <select class="form-control" [(ngModel)]="selectedQuotation.car" name="car" required #carInput="ngModel"
+                [class.is-invalid]="carInput.invalid && carInput.touched">
                 <option [ngValue]="undefined" disabled selected>Select car</option>
                 <option *ngFor="let car of filteredCars" [ngValue]="{id: car.id, regNumber: car.regNumber}">
                   {{ car.regNumber }} ({{ car.id }})
@@ -126,7 +145,8 @@
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-success" [disabled]="!quotationForm.form.valid || isLoading">
-            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
+              aria-hidden="true"></span>
             {{ isEditMode ? 'Update' : 'Add' }}
           </button>
           <button type="button" class="btn btn-outline-secondary" (click)="handleModalCancel()" [disabled]="isLoading">

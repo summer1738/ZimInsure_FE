@@ -40,18 +40,24 @@ function createEmptyPolicy(): Policy {
   ],
 })
 export class PolicyManagement {
-  policies$: Observable<Policy[]>;
   filteredPolicies$: Observable<Policy[]>;
   searchTerm$ = new BehaviorSubject<string>('');
   selectedPolicy: Policy = createEmptyPolicy();
   isModalVisible = false;
   isEditMode = false;
 
+  private policiesList: Policy[] = [];
+  private policiesSubject = new BehaviorSubject<Policy[]>([]);
+  policies$ = this.policiesSubject.asObservable();
+
   constructor(
     private policyService: PolicyService,
     private message: NzMessageService
   ) {
-    this.policies$ = this.policyService.getPolicies();
+    this.policyService.getPolicies().subscribe(policies => {
+      this.policiesList = policies;
+      this.policiesSubject.next(this.policiesList);
+    });
     this.filteredPolicies$ = combineLatest([
       this.policies$,
       this.searchTerm$
@@ -92,7 +98,11 @@ export class PolicyManagement {
       });
     } else {
       this.policyService.addPolicy(policy).subscribe({
-        next: () => this.refreshPolicies(),
+        next: (newPolicy) => {
+          this.policiesList = [newPolicy, ...this.policiesList];
+          this.policiesSubject.next(this.policiesList);
+          this.refreshPolicies(); // Optionally sync with backend
+        },
         error: () => this.message.error('Failed to add policy')
       });
     }
@@ -111,6 +121,9 @@ export class PolicyManagement {
   }
 
   refreshPolicies() {
-    this.policies$ = this.policyService.getPolicies();
+    this.policyService.getPolicies().subscribe(policies => {
+      this.policiesList = policies;
+      this.policiesSubject.next(this.policiesList);
+    });
   }
 }

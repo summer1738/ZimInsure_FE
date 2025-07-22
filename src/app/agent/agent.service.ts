@@ -4,7 +4,7 @@ import { ApiService } from '../api.service';
 
 export interface Agent {
   id: number;
-  name: string;
+  full_name: string;
   email: string;
   phone: string;
   idNumber: string;

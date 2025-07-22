@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from '../../auth/auth.service';
+import { BehaviorSubject } from 'rxjs';
 
 function createEmptyQuotation(): Quotation {
   return {
@@ -54,25 +55,32 @@ export class QuotationManagement implements OnInit {
 
   currentRole: string = '';
 
+  private quotationsList: Quotation[] = [];
+  private quotationsSubject = new BehaviorSubject<Quotation[]>([]);
+  quotations$ = this.quotationsSubject.asObservable();
+
   constructor(
     private quotationService: QuotationService,
     private clientService: ClientService,
     private carService: CarService,
     private message: NzMessageService,
     private authService: AuthService // Inject AuthService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.currentRole = this.authService.getRole() ?? '';
-    this.loadQuotations();
+    this.quotationService.getQuotations().subscribe(quotations => {
+      this.quotationsList = quotations;
+      this.quotationsSubject.next(this.quotationsList);
+    });
     this.loadClients();
     this.loadCars();
   }
 
   loadQuotations() {
-    this.quotationService.getQuotations().subscribe(data => {
-      this.quotations = data;
-      this.applyFilters();
+    this.quotationService.getQuotations().subscribe(quotations => {
+      this.quotationsList = quotations;
+      this.quotationsSubject.next(this.quotationsList);
     });
   }
 
@@ -90,7 +98,7 @@ export class QuotationManagement implements OnInit {
   }
 
   applyFilters() {
-    let filtered = this.quotations;
+    let filtered = this.quotationsList;
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.trim().toLowerCase();
       filtered = filtered.filter(q =>
@@ -169,8 +177,10 @@ export class QuotationManagement implements OnInit {
       });
     } else {
       this.quotationService.addQuotation(quotation).subscribe({
-        next: () => {
-          this.loadQuotations();
+        next: (newQuotation) => {
+          this.quotationsList = [newQuotation, ...this.quotationsList];
+          this.quotationsSubject.next(this.quotationsList);
+          this.loadQuotations(); // Optionally sync with backend
           this.message.success('Quotation created successfully');
           this.isModalVisible = false;
           this.isLoading = false;

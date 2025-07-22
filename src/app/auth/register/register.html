@@ -6,13 +6,14 @@
   <nz-form-item>
     <nz-form-label [nzSpan]="6" nzRequired>Full Name</nz-form-label>
     <nz-form-control [nzSpan]="18" nzErrorTip="Full name is required">
-      <input nz-input formControlName="fullName" placeholder="Full Name" />
+      <input nz-input formControlName="full_name" placeholder="Full Name" />
     </nz-form-control>
   </nz-form-item>
 
   <nz-form-item>
     <nz-form-label [nzSpan]="6" nzRequired>Email</nz-form-label>
-    <nz-form-control [nzSpan]="18" [nzErrorTip]="registerForm.get('email')?.hasError('email') ? 'Invalid email' : 'Email is required'">
+    <nz-form-control [nzSpan]="18"
+      [nzErrorTip]="registerForm.get('email')?.hasError('email') ? 'Invalid email' : 'Email is required'">
       <input nz-input formControlName="email" placeholder="Email" />
     </nz-form-control>
   </nz-form-item>
@@ -26,7 +27,8 @@
 
   <nz-form-item>
     <nz-form-label [nzSpan]="6" nzRequired>Confirm Password</nz-form-label>
-    <nz-form-control [nzSpan]="18" [nzErrorTip]="registerForm.hasError('passwordMismatch') ? 'Passwords do not match' : 'Confirmation required'">
+    <nz-form-control [nzSpan]="18"
+      [nzErrorTip]="registerForm.hasError('passwordMismatch') ? 'Passwords do not match' : 'Confirmation required'">
       <input nz-input type="password" formControlName="confirmPassword" placeholder="Confirm Password" />
     </nz-form-control>
   </nz-form-item>

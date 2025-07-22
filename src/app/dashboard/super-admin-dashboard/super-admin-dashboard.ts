@@ -11,6 +11,7 @@ import { RouterModule } from '@angular/router';
 import { NotificationCenter } from '../../notification/notification-center/notification-center';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-super-admin-dashboard',
@@ -50,7 +51,8 @@ export class SuperAdminDashboard {
     private carService: CarService,
     private policyService: PolicyService,
     private quotationService: QuotationService,
-    private modal: NzModalService
+    private modal: NzModalService,
+    private message: NzMessageService
   ) {
     this.totalClients$ = this.clientService.getClients().pipe(map(clients => clients.length));
     this.totalCars$ = this.carService.getCars().pipe(map(cars => cars.length));
@@ -74,23 +76,46 @@ export class SuperAdminDashboard {
   }
 
   handleAddClient({ client, cars }: { client: any, cars: any[] }) {
-    this.clientService.addClient(client as Client);
-    // Get the new client id (assume it's the max id)
-    const newClientId = Math.max(...(this.clientService as any).clients.map((c: Client) => c.id));
-    for (const car of cars) {
-      this.carService.addCar({
-        id: 0,
-        regNumber: car.regNumber!,
-        make: car.make!,
-        model: car.model!,
-        year: car.year!,
-        owner: car.owner!,
-        status: car.status!,
-        clientId: newClientId,
-        type: car.type!
-      });
-    }
-    this.showAddClientModal = false;
+    this.clientService.addClient(client as Client).subscribe({
+      next: (newClient) => {
+        // Add cars for the new client
+        let carsAdded = 0;
+        if (cars.length === 0) {
+          this.message.success('Client added successfully!');
+          this.showAddClientModal = false;
+          return;
+        }
+        for (const car of cars) {
+          this.carService.addCar({
+            id: 0,
+            regNumber: car.regNumber!,
+            make: car.make!,
+            model: car.model!,
+            year: car.year!,
+            owner: car.owner!,
+            status: car.status!,
+            clientId: newClient.id,
+            type: car.type!
+          }).subscribe({
+            next: () => {
+              carsAdded++;
+              if (carsAdded === cars.length) {
+                this.message.success('Client and cars added successfully!');
+                this.showAddClientModal = false;
+              }
+            },
+            error: () => {
+              this.message.error('Failed to add one or more cars.');
+              this.showAddClientModal = false;
+            }
+          });
+        }
+      },
+      error: () => {
+        this.message.error('Failed to add client.');
+        this.showAddClientModal = false;
+      }
+    });
   }
 
   openCardModal(card: 'clients' | 'cars' | 'policies' | 'quotations') {

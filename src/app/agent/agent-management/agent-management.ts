@@ -6,12 +6,10 @@ import { FormsModule } from '@angular/forms';
 import { AgentService, Agent } from '../agent.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
-// Remove local Agent interface and AgentService class
-// If createEmptyAgent is not provided by the imported Agent model, define it here:
 function createEmptyAgent(): Agent {
   return {
     id: 0,
-    name: '',
+    full_name: '',
     email: '',
     phone: '',
     idNumber: '',
@@ -30,7 +28,9 @@ const PAGE_SIZE = 7;
   imports: [CommonModule, FormsModule],
 })
 export class AgentManagement {
-  agents$: Observable<Agent[]>;
+  private agentsList: Agent[] = [];
+  private agentsSubject = new BehaviorSubject<Agent[]>([]);
+  agents$ = this.agentsSubject.asObservable();
   filteredAgents$: Observable<Agent[]>;
   searchTerm$ = new BehaviorSubject<string>('');
   selectedAgent: Agent = createEmptyAgent();
@@ -50,7 +50,10 @@ export class AgentManagement {
     private agentService: AgentService,
     private message: NzMessageService
   ) {
-    this.agents$ = this.agentService.getAgents();
+    this.agentService.getAgents().subscribe(agents => {
+      this.agentsList = agents;
+      this.agentsSubject.next(this.agentsList);
+    });
     this.filteredAgents$ = combineLatest([
       this.agents$,
       this.searchTerm$,
@@ -64,7 +67,7 @@ export class AgentManagement {
         if (searchTerm.trim()) {
           const term = searchTerm.trim().toLowerCase();
           filtered = agents.filter(agent =>
-            agent.name.toLowerCase().includes(term) ||
+            agent.full_name.toLowerCase().includes(term) ||
             agent.email.toLowerCase().includes(term) ||
             agent.phone.toLowerCase().includes(term) ||
             agent.idNumber.toLowerCase().includes(term) ||
@@ -91,7 +94,10 @@ export class AgentManagement {
   }
 
   refreshAgents() {
-    this.agents$ = this.agentService.getAgents();
+    this.agentService.getAgents().subscribe(agents => {
+      this.agentsList = agents;
+      this.agentsSubject.next(this.agentsList);
+    });
   }
 
   onSearch(term: string) {
@@ -132,7 +138,11 @@ export class AgentManagement {
       });
     } else {
       this.agentService.addAgent(agent).subscribe({
-        next: () => this.refreshAgents(),
+        next: (newAgent) => {
+          this.agentsList = [newAgent, ...this.agentsList];
+          this.agentsSubject.next(this.agentsList);
+          this.refreshAgents(); // Optionally sync with backend
+        },
         error: () => this.message.error('Failed to add agent')
       });
     }

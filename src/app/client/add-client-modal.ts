@@ -6,13 +6,13 @@ import { Car } from '../car/car.service';
 
 function createEmptyClient(): Partial<Client> {
   return {
-    name: '',
+    full_name: '',
     email: '',
     phone: '',
-    address: '',
     idNumber: '',
+    address: '',
     status: '',
-    agentId: 0,
+    agentId: undefined
   };
 }
 
@@ -62,7 +62,7 @@ export class AddClientModal {
 
   handleSubmit() {
     // Validate client fields
-    if (!this.client.name || !this.client.email || !this.client.phone || !this.client.address || !this.client.idNumber || !this.client.status || !this.client.agentId) {
+    if (!this.client.full_name || !this.client.email || !this.client.phone || !this.client.address || !this.client.idNumber || !this.client.status || !this.client.agentId) {
       alert('Please fill in all client details.');
       return;
     }
