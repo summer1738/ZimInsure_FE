@@ -89,4 +89,16 @@ export class AddClientModal {
   }
 
   public currentYear = new Date().getFullYear();
+
+  // Safely stringify objects with circular references for debugging
+  safeStringify(obj: any) {
+    const seen = new WeakSet();
+    return JSON.stringify(obj, function(key, value) {
+      if (typeof value === "object" && value !== null) {
+        if (seen.has(value)) return;
+        seen.add(value);
+      }
+      return value;
+    }, 2);
+  }
 } 
