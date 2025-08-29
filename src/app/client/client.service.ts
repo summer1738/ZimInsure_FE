@@ -9,7 +9,6 @@ export interface Client {
   phone: string;
   idNumber: string;
   address: string;
-  status: string;
   agentId?: number;
 }
 
@@ -21,8 +20,12 @@ export class ClientService {
     return this.api.get<Client[]>('/clients');
   }
 
-  addClient(client: Client): Observable<Client> {
-    return this.api.post<Client>('/clients', client);
+  addClient(client: Client, cars: any[] = []): Observable<Client> {
+    const clientWithCars = {
+      client: client,
+      cars: cars
+    };
+    return this.api.post<Client>('/clients', clientWithCars);
   }
 
   updateClient(client: Client): Observable<Client> {

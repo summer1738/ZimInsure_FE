@@ -4,7 +4,6 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { AuthService } from './auth/auth.service';
-import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -13,7 +12,6 @@ export class ApiService {
   constructor(
     private http: HttpClient,
     private auth: AuthService,
-    private message: NzMessageService
   ) {
     console.log('ApiService constructed');
   }
@@ -55,7 +53,7 @@ export class ApiService {
     } else if (error.status) {
       msg = `Error ${error.status}: ${error.statusText}`;
     }
-    this.message.error(msg);
+    console.log(msg);
     return throwError(() => error);
   }
 } 

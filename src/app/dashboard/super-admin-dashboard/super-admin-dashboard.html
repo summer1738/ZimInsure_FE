@@ -1,6 +1,7 @@
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Super Admin Dashboard</h2>
+    <button class="btn btn-primary" (click)="openAddClientModal()" style="z-index: 1000; position: relative;">Add Client</button>
   </div>
   <app-add-client-modal [visible]="showAddClientModal" [agentOptions]="agentOptions" (close)="closeAddClientModal()"
     (submit)="handleAddClient($event)">
@@ -46,7 +47,7 @@
     </div>
   </div>
 
-  <nz-modal [(nzVisible)]="isModalVisible" [nzTitle]="modalTitle" (nzOnCancel)="closeModal()" [nzFooter]="null">
+  <div class="modal">
     <ul *ngIf="modalContent.length > 0">
       <li *ngFor="let item of modalContent">
         <span *ngIf="selectedCard === 'clients'">{{ item.name }}</span>
@@ -56,7 +57,7 @@
       </li>
     </ul>
     <div *ngIf="modalContent.length === 0">No data available.</div>
-  </nz-modal>
+  </div>
 
   <!-- Quick Links -->
   <div class="mb-4">

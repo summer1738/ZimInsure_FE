@@ -1,7 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CommonModule } from '@angular/common';
 import { NotificationService, Notification } from '../../notification/notification.service';
 import { Subscription } from 'rxjs';
@@ -11,7 +9,7 @@ import { ClientService } from '../../client/client.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [NzIconModule, NzButtonModule, RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })

@@ -4,7 +4,6 @@ import { map } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AgentService, Agent } from '../agent.service';
-import { NzMessageService } from 'ng-zorro-antd/message';
 
 function createEmptyAgent(): Agent {
   return {
@@ -48,7 +47,6 @@ export class AgentManagement {
 
   constructor(
     private agentService: AgentService,
-    private message: NzMessageService
   ) {
     this.agentService.getAgents().subscribe(agents => {
       this.agentsList = agents;
@@ -134,7 +132,7 @@ export class AgentManagement {
     if (this.isEditMode) {
       this.agentService.updateAgent(agent).subscribe({
         next: () => this.refreshAgents(),
-        error: () => this.message.error('Failed to update agent')
+        error: () => console.log('Failed to update agent')
       });
     } else {
       this.agentService.addAgent(agent).subscribe({
@@ -143,7 +141,7 @@ export class AgentManagement {
           this.agentsSubject.next(this.agentsList);
           this.refreshAgents(); // Optionally sync with backend
         },
-        error: () => this.message.error('Failed to add agent')
+        error: () => console.log('Failed to add agent')
       });
     }
     this.isModalVisible = false;
@@ -156,7 +154,7 @@ export class AgentManagement {
   deleteAgent(id: number) {
     this.agentService.deleteAgent(id).subscribe({
       next: () => this.refreshAgents(),
-      error: () => this.message.error('Failed to delete agent')
+      error: () => console.log('Failed to delete agent')
     });
   }
 

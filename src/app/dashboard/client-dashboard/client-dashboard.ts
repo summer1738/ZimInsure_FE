@@ -7,7 +7,6 @@ import { map } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NotificationCenter } from '../../notification/notification-center/notification-center';
-import { NzModalModule } from 'ng-zorro-antd/modal';
 
 @Component({
   selector: 'app-client-dashboard',
@@ -16,7 +15,6 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
     CommonModule,
     RouterModule,
     NotificationCenter,
-    NzModalModule,
   ],
   templateUrl: './client-dashboard.html',
   styleUrl: './client-dashboard.css'

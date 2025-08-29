@@ -6,7 +6,6 @@ import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, finalize, retry, tap, switchMap, filter, take } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
 import { LoadingService } from './loading.service';
-import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Injectable()
 export class AppHttpInterceptor implements HttpInterceptor {
@@ -16,7 +15,6 @@ export class AppHttpInterceptor implements HttpInterceptor {
   constructor(
     private auth: AuthService,
     private loading: LoadingService,
-    private message: NzMessageService
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -50,7 +48,7 @@ export class AppHttpInterceptor implements HttpInterceptor {
         } else if (error.status) {
           msg = `Error ${error.status}: ${error.statusText}`;
         }
-        this.message.error(msg);
+        console.log(msg);
         console.error('[HTTP] Error:', error);
         return throwError(() => error);
       }),

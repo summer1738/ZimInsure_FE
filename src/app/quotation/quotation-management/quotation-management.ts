@@ -4,7 +4,6 @@ import { ClientService, Client } from '../../client/client.service';
 import { CarService, Car } from '../../car/car.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from '../../auth/auth.service';
 import { BehaviorSubject } from 'rxjs';
 
@@ -63,7 +62,6 @@ export class QuotationManagement implements OnInit {
     private quotationService: QuotationService,
     private clientService: ClientService,
     private carService: CarService,
-    private message: NzMessageService,
     private authService: AuthService // Inject AuthService
   ) { }
 
@@ -166,12 +164,12 @@ export class QuotationManagement implements OnInit {
       this.quotationService.updateQuotation(quotation.id, quotation).subscribe({
         next: () => {
           this.loadQuotations();
-          this.message.success('Quotation updated successfully');
+          console.log('Quotation updated successfully');
           this.isModalVisible = false;
           this.isLoading = false;
         },
         error: () => {
-          this.message.error('Failed to update quotation');
+          console.log('Failed to update quotation');
           this.isLoading = false;
         }
       });
@@ -181,12 +179,12 @@ export class QuotationManagement implements OnInit {
           this.quotationsList = [newQuotation, ...this.quotationsList];
           this.quotationsSubject.next(this.quotationsList);
           this.loadQuotations(); // Optionally sync with backend
-          this.message.success('Quotation created successfully');
+          console.log('Quotation created successfully');
           this.isModalVisible = false;
           this.isLoading = false;
         },
         error: () => {
-          this.message.error('Failed to create quotation');
+          console.log('Failed to create quotation');
           this.isLoading = false;
         }
       });
@@ -203,11 +201,11 @@ export class QuotationManagement implements OnInit {
       this.quotationService.deleteQuotation(id).subscribe({
         next: () => {
           this.loadQuotations();
-          this.message.success('Quotation deleted successfully');
+          console.log('Quotation deleted successfully');
           this.isLoading = false;
         },
         error: () => {
-          this.message.error('Failed to delete quotation');
+          console.log('Failed to delete quotation');
           this.isLoading = false;
         }
       });

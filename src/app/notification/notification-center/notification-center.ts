@@ -5,7 +5,6 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { AuthService } from '../../auth/auth.service';
 import { ClientService } from '../../client/client.service';
 import { AgentService } from '../../agent/agent.service';
-import { NzMessageService } from 'ng-zorro-antd/message';
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error';
 
@@ -74,7 +73,6 @@ export class NotificationCenter implements OnInit {
     private authService: AuthService,
     private clientService: ClientService,
     private agentService: AgentService,
-    private message: NzMessageService
   ) {}
 
   ngOnInit() {
@@ -84,7 +82,7 @@ export class NotificationCenter implements OnInit {
         this.clientId = profile.id;
         this.notificationService.getNotificationsByClient(this.clientId).subscribe({
           next: (notifs) => { this.notifications = notifs; },
-          error: () => this.message.error('Failed to load notifications')
+          error: () => console.log('Failed to load notifications')
         });
       });
     } else if (this.userRole === 'AGENT') {
@@ -94,13 +92,13 @@ export class NotificationCenter implements OnInit {
       // TODO: If agentId is needed, fetch agent profile by username/email
       this.notificationService.getNotificationsByRole('AGENT').subscribe({
         next: (notifs) => { this.notifications = notifs; },
-        error: () => this.message.error('Failed to load notifications')
+        error: () => console.log('Failed to load notifications')
       });
     } else {
       // SUPER_ADMIN
       this.notificationService.getNotificationsByRole('SUPER_ADMIN').subscribe({
         next: (notifs) => { this.notifications = notifs; },
-        error: () => this.message.error('Failed to load notifications')
+        error: () => console.log('Failed to load notifications')
       });
     }
   }
@@ -108,7 +106,7 @@ export class NotificationCenter implements OnInit {
   markAsRead(id: number) {
     this.notificationService.markAsRead(id).subscribe({
       next: () => { this.notifications = this.notifications.map(n => n.id === id ? { ...n, read: true } : n); },
-      error: () => this.message.error('Failed to mark as read')
+      error: () => console.log('Failed to mark as read')
     });
   }
 
@@ -119,7 +117,7 @@ export class NotificationCenter implements OnInit {
       this.clientId ?? undefined
     ).subscribe({
       next: () => { this.notifications = this.notifications.map(n => ({ ...n, read: true })); },
-      error: () => this.message.error('Failed to mark all as read')
+      error: () => console.log('Failed to mark all as read')
     });
   }
 

@@ -9,7 +9,7 @@
       <!-- <span class="badge bg-secondary text-uppercase ms-2">{{ userRole }}</span> -->
       <a *ngIf="userRole === 'CLIENT'" routerLink="/profile" class="ms-2 btn btn-link p-0 align-baseline">My Profile</a>
     </span>
-    <button nz-button nzType="default" class="me-3 position-relative" nzShape="circle" nzSize="small"
+    <button type="submit" class="btn btn-primary" nzType="default" class="me-3 position-relative" nzShape="circle" nzSize="small"
       title="Notifications" (click)="openNotifications()">
       <i nz-icon nzType="bell"></i>
       <span *ngIf="unreadCount > 0"
@@ -21,6 +21,6 @@
       <i *ngIf="darkMode" class="bi bi-sun-fill" aria-hidden="true"></i>
       <i *ngIf="!darkMode" class="bi bi-moon-fill" aria-hidden="true"></i>
     </button>
-    <button nz-button nzType="default" (click)="logout()">Logout</button>
+    <button type="submit" class="btn btn-primary" nzType="default" (click)="logout()">Logout</button>
   </div>
 </nav>

@@ -63,13 +63,7 @@
               <div *ngIf="addressInput.invalid && addressInput.touched" class="text-danger small">Address is required.
               </div>
             </div>
-            <div class="col-12 mb-3">
-              <label class="font-weight-bold">Status</label>
-              <input class="form-control" [(ngModel)]="client.status" name="status" required #statusInput="ngModel"
-                [class.is-invalid]="statusInput.invalid && statusInput.touched" />
-              <div *ngIf="statusInput.invalid && statusInput.touched" class="text-danger small">Status is required.
-              </div>
-            </div>
+
             <div class="col-12 mb-2 text-info small">
               Default password is <b>'ziminsure'</b>. The client will be prompted to change it on first login.
             </div>
@@ -83,35 +77,35 @@
             <div *ngFor="let car of carsForClient; let i = index" [ngModelGroup]="'car' + i"
               class="row align-items-end mb-2">
               <div class="col-md-2 mb-2">
-                <input class="form-control" placeholder="Reg #" [(ngModel)]="car.regNumber" name="regNumber"
+                <input class="form-control" placeholder="Reg #" [(ngModel)]="car.regNumber" [name]="'regNumber' + i"
                   maxlength="7" required #regNumberInput="ngModel"
                   [class.is-invalid]="regNumberInput.invalid && regNumberInput.touched" />
                 <div *ngIf="regNumberInput.invalid && regNumberInput.touched" class="text-danger small">Reg # is
                   required.</div>
               </div>
               <div class="col-md-2 mb-2">
-                <input class="form-control" placeholder="Make" [(ngModel)]="car.make" name="make" required
+                <input class="form-control" placeholder="Make" [(ngModel)]="car.make" [name]="'make' + i" required
                   #makeInput="ngModel" [class.is-invalid]="makeInput.invalid && makeInput.touched" />
                 <div *ngIf="makeInput.invalid && makeInput.touched" class="text-danger small">Make is required.</div>
               </div>
               <div class="col-md-2 mb-2">
-                <input class="form-control" placeholder="Model" [(ngModel)]="car.model" name="model" required
+                <input class="form-control" placeholder="Model" [(ngModel)]="car.model" [name]="'model' + i" required
                   #modelInput="ngModel" [class.is-invalid]="modelInput.invalid && modelInput.touched" />
                 <div *ngIf="modelInput.invalid && modelInput.touched" class="text-danger small">Model is required.</div>
               </div>
               <div class="col-md-2 mb-2">
-                <input class="form-control" type="number" placeholder="Year" [(ngModel)]="car.year" name="year"
+                <input class="form-control" type="number" placeholder="Year" [(ngModel)]="car.year" [name]="'year' + i"
                   min="1900" [max]="currentYear" required #yearInput="ngModel"
                   [class.is-invalid]="yearInput.invalid && yearInput.touched" />
                 <div *ngIf="yearInput.invalid && yearInput.touched" class="text-danger small">Year is required.</div>
               </div>
               <div class="col-md-2 mb-2">
-                <input class="form-control" placeholder="Owner" [(ngModel)]="car.owner" name="owner" required
+                <input class="form-control" placeholder="Owner" [(ngModel)]="car.owner" [name]="'owner' + i" required
                   #ownerInput="ngModel" [class.is-invalid]="ownerInput.invalid && ownerInput.touched" />
                 <div *ngIf="ownerInput.invalid && ownerInput.touched" class="text-danger small">Owner is required.</div>
               </div>
               <div class="col-md-2 mb-2">
-                <select class="form-select" [(ngModel)]="car.status" name="status" required #carStatusInput="ngModel"
+                <select class="form-select" [(ngModel)]="car.status" [name]="'status' + i" required #carStatusInput="ngModel"
                   [class.is-invalid]="carStatusInput.invalid && carStatusInput.touched">
                   <option value="">Status</option>
                   <option value="Active">Active</option>
@@ -129,12 +123,10 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success" [disabled]="!clientForm.form.valid">Add</button>
+          <button type="submit" class="btn btn-success">Add</button>
           <button type="button" class="btn btn-outline-secondary" (click)="handleClose()">Cancel</button>
         </div>
-        <div *ngIf="!clientForm.form.valid && clientForm.submitted" class="alert alert-danger m-3">
-          Please fill in all required fields correctly before submitting.
-        </div>
+
       </form>
     </div>
   </div>

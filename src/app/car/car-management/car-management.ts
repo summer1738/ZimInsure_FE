@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InsuranceService } from '../insurance.service';
 import { AuthService } from '../../auth/auth.service';
-import { NzMessageService } from 'ng-zorro-antd/message';
 
 function createEmptyCar(): Car {
   return {
@@ -18,7 +17,7 @@ function createEmptyCar(): Car {
     owner: '',
     status: '',
     clientId: 0,
-    type: 'private',
+    type: 'PRIVATE',
   };
 }
 
@@ -61,7 +60,6 @@ export class CarManagement {
     private carService: CarService,
     private insuranceService: InsuranceService,
     private authService: AuthService,
-    private message: NzMessageService
   ) {
     this.userRole = this.authService.getRole();
     this.cars$ = this.carService.getCars();
@@ -142,12 +140,12 @@ export class CarManagement {
     if (this.isEditMode) {
       this.carService.updateCar(car).subscribe({
         next: () => this.refreshCars(),
-        error: () => this.message.error('Failed to update car')
+        error: () => console.log('Failed to update car')
       });
     } else {
       this.carService.addCar(car).subscribe({
         next: () => this.refreshCars(),
-        error: () => this.message.error('Failed to add car')
+        error: () => console.log('Failed to add car')
       });
     }
     this.isModalVisible = false;
@@ -160,7 +158,7 @@ export class CarManagement {
   deleteCar(id: number) {
     this.carService.deleteCar(id).subscribe({
       next: () => this.refreshCars(),
-      error: () => this.message.error('Failed to delete car')
+      error: () => console.log('Failed to delete car')
     });
   }
 

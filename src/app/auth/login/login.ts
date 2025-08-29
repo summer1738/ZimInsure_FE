@@ -1,14 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
-import { NzIconModule } from 'ng-zorro-antd/icon';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
-import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-login',
@@ -16,11 +10,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
   imports: [
     ReactiveFormsModule,
     RouterModule,
-    NzFormModule,
-    NzInputModule,
-    NzButtonModule,
-    NzCheckboxModule,
-    NzIconModule,
     CommonModule
   ],
   templateUrl: './login.html',
@@ -35,7 +24,6 @@ export class Login {
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private message: NzMessageService
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -57,7 +45,7 @@ export class Login {
       next: (res) => {
         this.loading = false;
         if ((res as any).passwordChangeRequired) {
-          this.message.info('You must change your password before proceeding.');
+          console.log('You must change your password before proceeding.');
           this.router.navigate(['/change-password']); // Implement this route/page
           return;
         }
@@ -72,7 +60,7 @@ export class Login {
           this.router.navigate(['/welcome']);
         }
       },
-      error: () => this.message.error('Login failed. Please check your credentials.')
+      error: () => console.log('Login failed. Please check your credentials.')
     });
   }
 }

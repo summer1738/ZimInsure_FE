@@ -1,13 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzIconModule } from 'ng-zorro-antd/icon';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
-import { NzMessageService } from 'ng-zorro-antd/message';
 
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('newPassword')?.value;
@@ -21,10 +16,6 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
     imports: [
         ReactiveFormsModule,
         RouterModule,
-        NzFormModule,
-        NzInputModule,
-        NzButtonModule,
-        NzIconModule,
         CommonModule
     ],
     templateUrl: './change-password.html',
@@ -39,7 +30,6 @@ export class ChangePassword {
         private fb: FormBuilder,
         private router: Router,
         private authService: AuthService,
-        private message: NzMessageService
     ) {
         this.changePasswordForm = this.fb.group({
             currentPassword: ['', [Validators.required]],
@@ -59,7 +49,7 @@ export class ChangePassword {
         // For now, we'll just redirect to the appropriate dashboard
         // In a real implementation, you would call an API to change the password
         this.loading = false;
-        this.message.success('Password changed successfully!');
+        console.log('Password changed successfully!');
 
         // Redirect based on user role
         const role = this.authService.getRole();

@@ -9,9 +9,6 @@ import { CommonModule } from '@angular/common';
 import { AddClientModal } from '../../client/add-client-modal';
 import { RouterModule } from '@angular/router';
 import { NotificationCenter } from '../../notification/notification-center/notification-center';
-import { NzModalService } from 'ng-zorro-antd/modal';
-import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-super-admin-dashboard',
@@ -21,7 +18,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
     AddClientModal,
     RouterModule,
     NotificationCenter,
-    NzModalModule,
   ],
   templateUrl: './super-admin-dashboard.html',
   styleUrl: './super-admin-dashboard.css'
@@ -51,8 +47,6 @@ export class SuperAdminDashboard {
     private carService: CarService,
     private policyService: PolicyService,
     private quotationService: QuotationService,
-    private modal: NzModalService,
-    private message: NzMessageService
   ) {
     this.totalClients$ = this.clientService.getClients().pipe(map(clients => clients.length));
     this.totalCars$ = this.carService.getCars().pipe(map(cars => cars.length));
@@ -68,51 +62,25 @@ export class SuperAdminDashboard {
   }
 
   openAddClientModal() {
+    console.log('Add Client button clicked!');
     this.showAddClientModal = true;
+    console.log('showAddClientModal set to:', this.showAddClientModal);
   }
+
+
 
   closeAddClientModal() {
     this.showAddClientModal = false;
   }
 
   handleAddClient({ client, cars }: { client: any, cars: any[] }) {
-    this.clientService.addClient(client as Client).subscribe({
+    this.clientService.addClient(client as Client, cars).subscribe({
       next: (newClient) => {
-        // Add cars for the new client
-        let carsAdded = 0;
-        if (cars.length === 0) {
-          this.message.success('Client added successfully!');
-          this.showAddClientModal = false;
-          return;
-        }
-        for (const car of cars) {
-          this.carService.addCar({
-            id: 0,
-            regNumber: car.regNumber!,
-            make: car.make!,
-            model: car.model!,
-            year: car.year!,
-            owner: car.owner!,
-            status: car.status!,
-            clientId: newClient.id,
-            type: car.type!
-          }).subscribe({
-            next: () => {
-              carsAdded++;
-              if (carsAdded === cars.length) {
-                this.message.success('Client and cars added successfully!');
-                this.showAddClientModal = false;
-              }
-            },
-            error: () => {
-              this.message.error('Failed to add one or more cars.');
-              this.showAddClientModal = false;
-            }
-          });
-        }
+        console.log('Client and cars added successfully!');
+        this.showAddClientModal = false;
       },
       error: () => {
-        this.message.error('Failed to add client.');
+        console.log('Failed to add client.');
         this.showAddClientModal = false;
       }
     });

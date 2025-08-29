@@ -2,14 +2,8 @@ import { Component } from '@angular/core';
 import { PolicyService, Policy } from '../policy.service';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { NzTableModule } from 'ng-zorro-antd/table';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzInputModule } from 'ng-zorro-antd/input';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { NzMessageService } from 'ng-zorro-antd/message';
 
 function createEmptyPolicy(): Policy {
   return {
@@ -31,11 +25,6 @@ function createEmptyPolicy(): Policy {
   standalone: true,
   imports: [
     CommonModule,
-    NzTableModule,
-    NzButtonModule,
-    NzModalModule,
-    NzFormModule,
-    NzInputModule,
     FormsModule
   ],
 })
@@ -52,7 +41,6 @@ export class PolicyManagement {
 
   constructor(
     private policyService: PolicyService,
-    private message: NzMessageService
   ) {
     this.policyService.getPolicies().subscribe(policies => {
       this.policiesList = policies;
@@ -94,7 +82,7 @@ export class PolicyManagement {
     if (this.isEditMode) {
       this.policyService.updatePolicy(policy).subscribe({
         next: () => this.refreshPolicies(),
-        error: () => this.message.error('Failed to update policy')
+        error: () => console.log('Failed to update policy')
       });
     } else {
       this.policyService.addPolicy(policy).subscribe({
@@ -103,7 +91,7 @@ export class PolicyManagement {
           this.policiesSubject.next(this.policiesList);
           this.refreshPolicies(); // Optionally sync with backend
         },
-        error: () => this.message.error('Failed to add policy')
+        error: () => console.log('Failed to add policy')
       });
     }
     this.isModalVisible = false;
@@ -116,7 +104,7 @@ export class PolicyManagement {
   deletePolicy(id: number) {
     this.policyService.deletePolicy(id).subscribe({
       next: () => this.refreshPolicies(),
-      error: () => this.message.error('Failed to delete policy')
+      error: () => console.log('Failed to delete policy')
     });
   }
 

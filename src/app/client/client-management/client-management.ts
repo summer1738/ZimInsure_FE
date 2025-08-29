@@ -5,7 +5,7 @@ import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NzMessageService } from 'ng-zorro-antd/message';
+import { AddClientModal } from '../add-client-modal';
 
 function createEmptyClient(): Client {
   return {
@@ -15,7 +15,6 @@ function createEmptyClient(): Client {
     phone: '',
     address: '',
     idNumber: '',
-    status: '',
     agentId: 0,
   };
 }
@@ -38,7 +37,7 @@ const PAGE_SIZE = 7;
   templateUrl: './client-management.html',
   styleUrl: './client-management.css',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AddClientModal],
 })
 export class ClientManagement {
   clients$: Observable<Client[]>;
@@ -47,6 +46,13 @@ export class ClientManagement {
   selectedClient: Client = createEmptyClient();
   isModalVisible = false;
   isEditMode = false;
+
+  // Add Client Modal properties
+  showAddClientModal = false;
+  agentOptions: { id: number, name: string }[] = [
+    { id: 1, name: 'Agent 1' },
+    { id: 2, name: 'Agent 2' }
+  ];
 
   // Cars for new client
   carsForClient: Partial<Car>[] = [createEmptyCarForClient()];
@@ -63,7 +69,6 @@ export class ClientManagement {
   constructor(
     private clientService: ClientService,
     private carService: CarService,
-    private message: NzMessageService
   ) {
     this.clients$ = this.clientService.getClients();
     this.filteredClients$ = combineLatest([
@@ -82,9 +87,8 @@ export class ClientManagement {
             (client.full_name || '').toLowerCase().includes(term) ||
             client.email.toLowerCase().includes(term) ||
             client.phone.toLowerCase().includes(term) ||
-            client.address.toLowerCase().includes(term) ||
-            client.idNumber.toLowerCase().includes(term) ||
-            client.status.toLowerCase().includes(term)
+                        client.address.toLowerCase().includes(term) ||
+            client.idNumber.toLowerCase().includes(term)
           );
         }
         // Sort
@@ -124,19 +128,29 @@ export class ClientManagement {
   }
 
   showAddModal() {
-    this.selectedClient = {
-      id: 0,
-      full_name: '',
-      email: '',
-      phone: '',
-      idNumber: '',
-      address: '',
-      status: '',
-      agentId: undefined
-    };
-    this.isEditMode = false;
-    this.isModalVisible = true;
-    this.carsForClient = [createEmptyCarForClient()];
+    this.showAddClientModal = true;
+  }
+
+  openAddClientModal() {
+    this.showAddClientModal = true;
+  }
+
+  closeAddClientModal() {
+    this.showAddClientModal = false;
+  }
+
+  handleAddClient({ client, cars }: { client: any, cars: any[] }) {
+    this.clientService.addClient(client as Client, cars).subscribe({
+      next: (newClient) => {
+        console.log('Client and cars added successfully!');
+        this.showAddClientModal = false;
+        this.refreshClients();
+      },
+      error: () => {
+        console.log('Failed to add client.');
+        this.showAddClientModal = false;
+      }
+    });
   }
 
   showEditModal(client: Client) {
@@ -146,33 +160,11 @@ export class ClientManagement {
     this.carsForClient = [];
   }
 
-  addCarForm() {
-    this.carsForClient.push(createEmptyCarForClient());
-  }
-
-  removeCarForm(idx: number) {
-    if (this.carsForClient.length > 1) {
-      this.carsForClient.splice(idx, 1);
-    }
-  }
-
   handleModalOk(client: Client) {
-    if (!this.isEditMode) {
-      // Validate at least one car and all car fields
-      if (!this.carsForClient.length || this.carsForClient.some(car => !car.regNumber || !car.make || !car.model || !car.year || !car.owner || !car.status)) {
-        alert('Please enter at least one car and fill in all car details.');
-        return;
-      }
-      this.clientService.addClient(client).subscribe({
-        next: () => this.refreshClients(),
-        error: () => this.message.error('Failed to add client')
-      });
-      // Car creation should be handled after client is created and backend returns the new client id
-      // (This logic may need to be updated for real backend integration)
-    } else {
+    if (this.isEditMode) {
       this.clientService.updateClient(client).subscribe({
         next: () => this.refreshClients(),
-        error: () => this.message.error('Failed to update client')
+        error: () => console.log('Failed to update client')
       });
     }
     this.isModalVisible = false;
@@ -185,7 +177,7 @@ export class ClientManagement {
   deleteClient(id: number) {
     this.clientService.deleteClient(id).subscribe({
       next: () => this.refreshClients(),
-      error: () => this.message.error('Failed to delete client')
+      error: () => console.log('Failed to delete client')
     });
   }
 

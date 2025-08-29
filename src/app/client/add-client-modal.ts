@@ -11,7 +11,6 @@ function createEmptyClient(): Partial<Client> {
     phone: '',
     idNumber: '',
     address: '',
-    status: '',
     agentId: undefined
   };
 }
@@ -24,7 +23,7 @@ function createEmptyCarForClient(): Partial<Car> {
     year: new Date().getFullYear(),
     owner: '',
     status: '',
-    type: 'private',
+    type: 'PRIVATE',
   };
 }
 
@@ -62,7 +61,7 @@ export class AddClientModal {
 
   handleSubmit() {
     // Validate client fields
-    if (!this.client.full_name || !this.client.email || !this.client.phone || !this.client.address || !this.client.idNumber || !this.client.status || !this.client.agentId) {
+    if (!this.client.full_name || !this.client.email || !this.client.phone || !this.client.address || !this.client.idNumber || this.client.agentId === undefined || this.client.agentId === null) {
       alert('Please fill in all client details.');
       return;
     }

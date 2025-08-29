@@ -11,7 +11,7 @@ export interface Car {
   owner: string;
   status: string;
   clientId: number;
-  type?: 'private' | 'commercial';
+  type?: 'PRIVATE' | 'COMMERCIAL';
 }
 
 @Injectable({ providedIn: 'root' })

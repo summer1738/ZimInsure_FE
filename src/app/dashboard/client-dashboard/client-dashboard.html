@@ -100,7 +100,7 @@
   </div>
 </div>
 
-<nz-modal [(nzVisible)]="isModalVisible" [nzTitle]="modalTitle" (nzOnCancel)="closeModal()" [nzFooter]="null">
+<div class="modal">
   <ul *ngIf="modalContent.length > 0">
     <li *ngFor="let item of modalContent">
       <span *ngIf="selectedCard === 'policies'">{{ item.number }}</span>
@@ -109,4 +109,4 @@
     </li>
   </ul>
   <div *ngIf="modalContent.length === 0">No data available.</div>
-</nz-modal>
+</div>

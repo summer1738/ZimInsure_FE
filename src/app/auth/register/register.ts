@@ -1,13 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzIconModule } from 'ng-zorro-antd/icon';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
-import { NzMessageService } from 'ng-zorro-antd/message';
 
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password')?.value;
@@ -21,10 +16,6 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
   imports: [
     ReactiveFormsModule,
     RouterModule,
-    NzFormModule,
-    NzInputModule,
-    NzButtonModule,
-    NzIconModule,
     CommonModule
   ],
   templateUrl: './register.html',
@@ -35,7 +26,11 @@ export class Register {
   errorMessage: string = '';
   loading = false;
 
-  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService, private message: NzMessageService) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService
+  ) {
     this.registerForm = this.fb.group({
       full_name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
@@ -57,13 +52,13 @@ export class Register {
     this.authService.register(this.registerForm.value).subscribe({
       next: () => {
         this.loading = false;
-        this.message.success('Registration successful! Please log in.');
+        console.log('Registration successful! Please log in.');
         this.router.navigate(['/login']);
       },
       error: (err) => {
         this.loading = false;
         this.errorMessage = err.error?.message || 'Registration failed';
-        this.message.error(this.errorMessage);
+        console.log(this.errorMessage);
       }
     });
   }

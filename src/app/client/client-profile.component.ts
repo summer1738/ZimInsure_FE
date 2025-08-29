@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ClientService, Client } from './client.service';
 import { CommonModule } from '@angular/common';
-import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-client-profile',
@@ -31,7 +30,6 @@ export class ClientProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private clientService: ClientService,
-    private message: NzMessageService
   ) {
     this.profileForm = this.fb.group({
       full_name: ['', Validators.required],
@@ -48,7 +46,7 @@ export class ClientProfileComponent implements OnInit {
       next: (profile) => {
         this.profileForm.patchValue(profile);
       },
-      error: () => this.message.error('Failed to load profile')
+      error: () => console.log('Failed to load profile')
     });
   }
 
@@ -60,7 +58,7 @@ export class ClientProfileComponent implements OnInit {
         this.successMessage = 'Profile updated!';
         this.errorMessage = '';
       },
-      error: () => this.message.error('Failed to update profile')
+      error: () => console.log('Failed to update profile')
     });
   }
 } 
