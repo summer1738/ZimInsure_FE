@@ -29,7 +29,7 @@ export const routes: Routes = [
       { path: 'dashboard/super-admin', component: SuperAdminDashboard, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN'] } },
       { path: 'dashboard/agent', component: AgentDashboard, canActivate: [AuthGuard, RoleGuard], data: { roles: ['AGENT'] } },
       { path: 'dashboard/client', component: ClientDashboard, canActivate: [AuthGuard, RoleGuard], data: { roles: ['CLIENT'] } },
-      { path: 'profile', component: ClientProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['CLIENT'] } },
+      { path: 'profile', component: ClientProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['CLIENT', 'AGENT', 'SUPER_ADMIN'] } },
       { path: 'agents', component: AgentManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN'] } },
       { path: 'clients', component: ClientManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT'] } },
       { path: 'cars', component: CarManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT'] } },

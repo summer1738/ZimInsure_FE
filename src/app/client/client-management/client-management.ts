@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { ClientService, Client } from '../client.service';
-import { CarService, Car } from '../../car/car.service';
+import { Car } from '../../car/car.service';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 function createEmptyClient(): Client {
@@ -41,12 +41,15 @@ const PAGE_SIZE = 7;
   imports: [CommonModule, FormsModule],
 })
 export class ClientManagement {
+  private refreshTrigger$ = new BehaviorSubject<void>(undefined);
   clients$: Observable<Client[]>;
   filteredClients$: Observable<Client[]>;
   searchTerm$ = new BehaviorSubject<string>('');
   selectedClient: Client = createEmptyClient();
   isModalVisible = false;
   isEditMode = false;
+  /** True after client + cars have been loaded in edit modal (so Update can be enabled). */
+  editFormLoaded = false;
 
   // Cars for new client
   carsForClient: Partial<Car>[] = [createEmptyCarForClient()];
@@ -60,12 +63,18 @@ export class ClientManagement {
   sortColumn$ = new BehaviorSubject<string>('');
   sortDirection$ = new BehaviorSubject<'asc' | 'desc'>('asc');
 
+  public currentYear = new Date().getFullYear();
+
+  @ViewChild('clientForm') clientFormRef?: NgForm;
+
   constructor(
     private clientService: ClientService,
-    private carService: CarService,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private cdr: ChangeDetectorRef
   ) {
-    this.clients$ = this.clientService.getClients();
+    this.clients$ = this.refreshTrigger$.pipe(
+      switchMap(() => this.clientService.getClients())
+    );
     this.filteredClients$ = combineLatest([
       this.clients$,
       this.searchTerm$,
@@ -80,11 +89,11 @@ export class ClientManagement {
           const term = searchTerm.trim().toLowerCase();
           filtered = clients.filter(client =>
             (client.full_name || '').toLowerCase().includes(term) ||
-            client.email.toLowerCase().includes(term) ||
-            client.phone.toLowerCase().includes(term) ||
-            client.address.toLowerCase().includes(term) ||
-            client.idNumber.toLowerCase().includes(term) ||
-            client.status.toLowerCase().includes(term)
+            (client.email || '').toLowerCase().includes(term) ||
+            (client.phone || '').toLowerCase().includes(term) ||
+            (client.address || '').toLowerCase().includes(term) ||
+            (client.idNumber || '').toLowerCase().includes(term) ||
+            (client.status || '').toLowerCase().includes(term)
           );
         }
         // Sort
@@ -124,6 +133,7 @@ export class ClientManagement {
   }
 
   showAddModal() {
+    this.editFormLoaded = false;
     this.selectedClient = {
       id: 0,
       full_name: '',
@@ -140,10 +150,48 @@ export class ClientManagement {
   }
 
   showEditModal(client: Client) {
+    this.editFormLoaded = false;
     this.selectedClient = { ...client };
     this.isEditMode = true;
     this.isModalVisible = true;
     this.carsForClient = [];
+    // Load client with cars and status for the form
+    this.clientService.getClientWithCars(client.id).subscribe({
+      next: (full) => {
+        this.selectedClient = {
+          id: full.id,
+          full_name: (full as any).full_name ?? full.full_name ?? '',
+          email: full.email,
+          phone: full.phone ?? '',
+          address: full.address ?? '',
+          idNumber: (full as any).idNumber ?? full.idNumber ?? '',
+          status: full.status ?? 'Active',
+          agentId: (full as any).createdBy
+        };
+        const cars = (full as any).cars;
+        if (cars && Array.isArray(cars) && cars.length > 0) {
+          this.carsForClient = cars.map((c: any) => ({
+            id: c.id,
+            regNumber: c.regNumber ?? '',
+            make: c.make ?? '',
+            model: c.model ?? '',
+            year: c.year ?? new Date().getFullYear(),
+            owner: c.owner ?? '',
+            status: c.status ?? 'Active',
+            type: c.type?.toLowerCase() ?? 'private'
+          }));
+        } else {
+          this.carsForClient = [createEmptyCarForClient()];
+        }
+        this.editFormLoaded = true;
+        this.cdr.detectChanges();
+        setTimeout(() => this.clientFormRef?.form?.updateValueAndValidity(), 0);
+      },
+      error: () => {
+        this.message.error('Failed to load client details');
+        this.isModalVisible = false;
+      }
+    });
   }
 
   addCarForm() {
@@ -159,20 +207,36 @@ export class ClientManagement {
   handleModalOk(client: Client) {
     if (!this.isEditMode) {
       // Validate at least one car and all car fields
-      if (!this.carsForClient.length || this.carsForClient.some(car => !car.regNumber || !car.make || !car.model || !car.year || !car.owner || !car.status)) {
+      if (
+        !this.carsForClient.length ||
+        this.carsForClient.some(
+          car =>
+            !car.regNumber ||
+            !car.make ||
+            !car.model ||
+            !car.year ||
+            !car.owner ||
+            !car.status
+        )
+      ) {
         alert('Please enter at least one car and fill in all car details.');
         return;
       }
-      this.clientService.addClient(client).subscribe({
-        next: () => this.refreshClients(),
-        error: () => this.message.error('Failed to add client')
-      });
-      // Car creation should be handled after client is created and backend returns the new client id
-      // (This logic may need to be updated for real backend integration)
+
+      // Create client together with their cars in a single request
+      this.clientService
+        .addClientWithCars({
+          client,
+          cars: this.carsForClient,
+        })
+        .subscribe({
+          next: () => this.refreshClients(),
+          error: () => this.message.error('Failed to add client'),
+        });
     } else {
-      this.clientService.updateClient(client).subscribe({
+      this.clientService.updateClientWithCars(client, this.carsForClient).subscribe({
         next: () => this.refreshClients(),
-        error: () => this.message.error('Failed to update client')
+        error: () => this.message.error('Failed to update client'),
       });
     }
     this.isModalVisible = false;
@@ -180,22 +244,26 @@ export class ClientManagement {
 
   handleModalCancel() {
     this.isModalVisible = false;
+    this.editFormLoaded = false;
   }
 
   deleteClient(id: number) {
     this.clientService.deleteClient(id).subscribe({
-      next: () => this.refreshClients(),
-      error: () => this.message.error('Failed to delete client')
+      next: () => {
+        this.message.success('Client deleted');
+        this.refreshClients();
+      },
+      error: () => {
+        // ApiService handleError already shows the backend message
+      }
     });
   }
 
   refreshClients() {
-    this.clients$ = this.clientService.getClients();
+    this.refreshTrigger$.next();
   }
 
   get totalPages() {
     return Array.from({ length: Math.ceil(this.totalClients / this.pageSize) });
   }
-
-  public currentYear = new Date().getFullYear();
 }

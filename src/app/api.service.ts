@@ -48,11 +48,16 @@ export class ApiService {
 
   private handleError(error: any) {
     let msg = 'An error occurred';
-    if (error.error && error.error.message) {
-      msg = error.error.message;
-    } else if (error.status === 0) {
+    if (error.error != null) {
+      if (typeof error.error === 'string') {
+        msg = error.error;
+      } else if (error.error.message) {
+        msg = error.error.message;
+      }
+    }
+    if (msg === 'An error occurred' && error.status === 0) {
       msg = 'Network error: Unable to reach server';
-    } else if (error.status) {
+    } else if (msg === 'An error occurred' && error.status) {
       msg = `Error ${error.status}: ${error.statusText}`;
     }
     this.message.error(msg);

@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { InsuranceService } from './car/insurance.service';
+import { AuthService } from './auth/auth.service';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -13,18 +14,26 @@ import { HttpClient } from '@angular/common/http';
 export class App implements OnInit, OnDestroy {
   protected title = 'ZimInsure';
   isTestModalVisible = false;
-  private insuranceScanInterval: any;
+  private insuranceScanInterval: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private insuranceService: InsuranceService, private http: HttpClient) {
+  constructor(
+    private insuranceService: InsuranceService,
+    private auth: AuthService,
+    private http: HttpClient
+  ) {
     console.log('App component constructed');
   }
 
   ngOnInit() {
-    this.insuranceService.scanExpiringInsurances();
-    // Scan every 24 hours
-    this.insuranceScanInterval = setInterval(() => {
-      this.insuranceService.scanExpiringInsurances();
-    }, 24 * 60 * 60 * 1000);
+    this.runScanIfLoggedIn();
+    this.insuranceScanInterval = setInterval(() => this.runScanIfLoggedIn(), 24 * 60 * 60 * 1000);
+  }
+
+  private runScanIfLoggedIn() {
+    if (!this.auth.hasToken()) return;
+    this.insuranceService.scanExpiringInsurances().subscribe({
+      error: () => { /* avoid 401/404 triggering global error handler repeatedly */ }
+    });
   }
 
   ngOnDestroy() {

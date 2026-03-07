@@ -8,7 +8,7 @@
   <table class="ant-table" style="width: 100%;">
     <thead class="ant-table-thead">
       <tr>
-        <th (click)="onSort('name')" style="cursor:pointer;">Name <span *ngIf="sortColumn$.value === 'name'">{{
+        <th (click)="onSort('full_name')" style="cursor:pointer;">Name <span *ngIf="sortColumn$.value === 'full_name'">{{
             sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
         <th (click)="onSort('email')" style="cursor:pointer;">Email <span *ngIf="sortColumn$.value === 'email'">{{
             sortDirection$.value === 'asc' ? '▲' : '▼' }}</span></th>
@@ -30,7 +30,7 @@
         <td>{{ client.phone }}</td>
         <td>{{ client.address }}</td>
         <td>{{ client.idNumber }}</td>
-        <td>{{ client.status }}</td>
+        <td>{{ client.status || '—' }}</td>
         <td>
           <button class="btn btn-secondary btn-sm" (click)="showEditModal(client)">Edit</button>
           <button class="btn btn-danger btn-sm" (click)="deleteClient(client.id)">Delete</button>
@@ -147,7 +147,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success" [disabled]="!clientForm.form.valid">
+          <button type="submit" class="btn btn-success" [disabled]="isEditMode ? !editFormLoaded : !clientForm.form.valid">
             <!-- <i class='bi bi-check-circle'></i> --> {{ isEditMode ? 'Update' : 'Add' }}
           </button>
           <button type="button" class="btn btn-outline-secondary" (click)="handleModalCancel()">

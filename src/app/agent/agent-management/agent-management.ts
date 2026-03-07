@@ -20,6 +20,12 @@ function createEmptyAgent(): Agent {
 
 const PAGE_SIZE = 7;
 
+function hasApiMessage(err: any): boolean {
+  if (!err || !err.error) return false;
+  if (typeof err.error === 'string' && err.error.trim().length > 0) return true;
+  return !!(err.error.message && String(err.error.message).trim().length > 0);
+}
+
 @Component({
   selector: 'app-agent-management',
   templateUrl: './agent-management.html',
@@ -134,7 +140,9 @@ export class AgentManagement {
     if (this.isEditMode) {
       this.agentService.updateAgent(agent).subscribe({
         next: () => this.refreshAgents(),
-        error: () => this.message.error('Failed to update agent')
+        error: (err) => {
+          if (!hasApiMessage(err)) this.message.error('Failed to update agent');
+        }
       });
     } else {
       this.agentService.addAgent(agent).subscribe({
@@ -143,7 +151,9 @@ export class AgentManagement {
           this.agentsSubject.next(this.agentsList);
           this.refreshAgents(); // Optionally sync with backend
         },
-        error: () => this.message.error('Failed to add agent')
+        error: (err) => {
+          if (!hasApiMessage(err)) this.message.error('Failed to add agent');
+        }
       });
     }
     this.isModalVisible = false;
@@ -156,7 +166,9 @@ export class AgentManagement {
   deleteAgent(id: number) {
     this.agentService.deleteAgent(id).subscribe({
       next: () => this.refreshAgents(),
-      error: () => this.message.error('Failed to delete agent')
+      error: (err) => {
+        if (!hasApiMessage(err)) this.message.error('Failed to delete agent');
+      }
     });
   }
 

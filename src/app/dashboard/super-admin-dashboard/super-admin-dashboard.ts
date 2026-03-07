@@ -76,40 +76,14 @@ export class SuperAdminDashboard {
   }
 
   handleAddClient({ client, cars }: { client: any, cars: any[] }) {
-    this.clientService.addClient(client as Client).subscribe({
-      next: (newClient) => {
-        // Add cars for the new client
-        let carsAdded = 0;
-        if (cars.length === 0) {
-          this.message.success('Client added successfully!');
-          this.showAddClientModal = false;
-          return;
-        }
-        for (const car of cars) {
-          this.carService.addCar({
-            id: 0,
-            regNumber: car.regNumber!,
-            make: car.make!,
-            model: car.model!,
-            year: car.year!,
-            owner: car.owner!,
-            status: car.status!,
-            clientId: newClient.id,
-            type: car.type!
-          }).subscribe({
-            next: () => {
-              carsAdded++;
-              if (carsAdded === cars.length) {
-                this.message.success('Client and cars added successfully!');
-                this.showAddClientModal = false;
-              }
-            },
-            error: () => {
-              this.message.error('Failed to add one or more cars.');
-              this.showAddClientModal = false;
-            }
-          });
-        }
+    if (!cars?.length) {
+      this.message.warning('Please add at least one car for the client.');
+      return;
+    }
+    this.clientService.addClientWithCars({ client: client as Client, cars }).subscribe({
+      next: (newClient: Client) => {
+        this.message.success('Client and cars added successfully!');
+        this.showAddClientModal = false;
       },
       error: () => {
         this.message.error('Failed to add client.');
