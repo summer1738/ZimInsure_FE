@@ -78,8 +78,19 @@
               <input class="form-control" type="date" [(ngModel)]="selectedPolicy.endDate" name="endDate" required />
             </div>
             <div class="col-12 mb-3">
-              <label class="font-weight-bold">Client Name</label>
-              <input class="form-control" [(ngModel)]="selectedPolicy.clientName" name="clientName" required />
+              <label class="font-weight-bold">Client</label>
+              <select class="form-select" [(ngModel)]="selectedPolicy.clientId" name="clientId" required (ngModelChange)="onClientChange()">
+                <option [ngValue]="null" disabled>Select a client</option>
+                <option *ngFor="let c of clients" [ngValue]="c.id">{{ c.full_name }}</option>
+              </select>
+            </div>
+            <div class="col-12 mb-3">
+              <label class="font-weight-bold">Car</label>
+              <select class="form-select" [(ngModel)]="selectedPolicy.carId" name="carId" required [disabled]="!selectedPolicy.clientId || clientCars.length === 0">
+                <option [ngValue]="null" disabled>Select a car</option>
+                <option *ngFor="let car of clientCars" [ngValue]="car.id">{{ car.regNumber }} – {{ car.make }} {{ car.model }} ({{ car.year }})</option>
+              </select>
+              <small class="text-muted" *ngIf="selectedPolicy.clientId && clientCars.length === 0">No cars registered for this client.</small>
             </div>
           </div>
         </div>

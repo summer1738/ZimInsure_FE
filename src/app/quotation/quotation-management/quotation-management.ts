@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { QuotationService, Quotation } from '../quotation.service';
 import { ClientService, Client } from '../../client/client.service';
 import { CarService, Car } from '../../car/car.service';
@@ -41,8 +41,7 @@ export class QuotationManagement implements OnInit {
   public isLoading = false;
 
   clients: Client[] = [];
-  cars: Car[] = [];
-  filteredCars: Car[] = [];
+  clientCars: Car[] = [];
 
   // Pagination
   currentPage = 1;
@@ -64,36 +63,45 @@ export class QuotationManagement implements OnInit {
     private clientService: ClientService,
     private carService: CarService,
     private message: NzMessageService,
-    private authService: AuthService // Inject AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
     this.currentRole = this.authService.getRole() ?? '';
     this.quotationService.getQuotations().subscribe(quotations => {
-      this.quotationsList = quotations;
+      this.quotationsList = quotations || [];
       this.quotationsSubject.next(this.quotationsList);
+      this.applyFilters();
+      this.cdr.detectChanges();
     });
     this.loadClients();
-    this.loadCars();
   }
 
   loadQuotations() {
     this.quotationService.getQuotations().subscribe(quotations => {
-      this.quotationsList = quotations;
+      this.quotationsList = quotations || [];
       this.quotationsSubject.next(this.quotationsList);
+      this.applyFilters();
+      this.cdr.detectChanges();
     });
   }
 
   loadClients() {
     this.clientService.getClients().subscribe(data => {
-      this.clients = data;
+      this.clients = data || [];
     });
   }
 
-  loadCars() {
-    this.carService.getCars().subscribe(data => {
-      this.cars = data;
-      this.updateFilteredCars();
+  /** Load cars for the selected client (same logic as policy form). */
+  loadCarsForClient(clientId: number | undefined): void {
+    if (clientId == null) {
+      this.clientCars = [];
+      return;
+    }
+    this.carService.getCars(clientId).subscribe(cars => {
+      this.clientCars = cars || [];
+      this.cdr.detectChanges();
     });
   }
 
@@ -103,20 +111,22 @@ export class QuotationManagement implements OnInit {
       const term = this.searchTerm.trim().toLowerCase();
       filtered = filtered.filter(q =>
         (q.quotationNumber?.toLowerCase().includes(term) || '') ||
-        (q.client?.fullName?.toLowerCase().includes(term) || '') ||
+        (q.clientName?.toLowerCase().includes(term) || q.client?.fullName?.toLowerCase().includes(term) || '') ||
         (q.policyType?.toLowerCase().includes(term) || '') ||
         (q.status?.toLowerCase().includes(term) || '') ||
         (q.createdDate?.toLowerCase().includes(term) || '') ||
-        (q.car?.regNumber?.toLowerCase().includes(term) || '') ||
+        (q.carRegNumber?.toLowerCase().includes(term) || q.car?.regNumber?.toLowerCase().includes(term) || '') ||
         (q.amount?.toString().includes(term) || '')
       );
     }
     if (this.sortColumn) {
       filtered = [...filtered].sort((a, b) => {
-        const aValue = (a as any)[this.sortColumn] || '';
-        const bValue = (b as any)[this.sortColumn] || '';
-        if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
-        if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
+        const aVal = this.sortColumn === 'client' ? (a.clientName ?? a.client?.fullName ?? '')
+          : this.sortColumn === 'car' ? (a.carRegNumber ?? a.car?.regNumber ?? '') : (a as any)[this.sortColumn] ?? '';
+        const bVal = this.sortColumn === 'client' ? (b.clientName ?? b.client?.fullName ?? '')
+          : this.sortColumn === 'car' ? (b.carRegNumber ?? b.car?.regNumber ?? '') : (b as any)[this.sortColumn] ?? '';
+        if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
         return 0;
       });
     }
@@ -148,19 +158,27 @@ export class QuotationManagement implements OnInit {
 
   showAddModal() {
     this.selectedQuotation = createEmptyQuotation();
+    this.clientCars = [];
     this.isEditMode = false;
     this.isModalVisible = true;
-    this.updateFilteredCars();
   }
 
   showEditModal(quotation: Quotation) {
-    this.selectedQuotation = { ...quotation };
+    this.selectedQuotation = {
+      ...quotation,
+      clientId: quotation.clientId ?? quotation.client?.id,
+      carId: quotation.carId ?? quotation.car?.id,
+    };
     this.isEditMode = true;
     this.isModalVisible = true;
-    this.updateFilteredCars();
+    this.loadCarsForClient(quotation.clientId ?? quotation.client?.id ?? undefined);
   }
 
   handleModalOk(quotation: Quotation) {
+    if (!this.isEditMode && (quotation.clientId == null || quotation.carId == null)) {
+      this.message.error('Please select a client and a car.');
+      return;
+    }
     this.isLoading = true;
     if (this.isEditMode) {
       this.quotationService.updateQuotation(quotation.id, quotation).subscribe({
@@ -215,16 +233,8 @@ export class QuotationManagement implements OnInit {
   }
 
   onClientChange() {
-    this.selectedQuotation.car = undefined;
-    this.updateFilteredCars();
-  }
-
-  updateFilteredCars() {
-    if (this.selectedQuotation.client?.id) {
-      this.filteredCars = this.cars.filter(car => car.clientId === this.selectedQuotation.client?.id);
-    } else {
-      this.filteredCars = [];
-    }
+    this.selectedQuotation.carId = undefined;
+    this.loadCarsForClient(this.selectedQuotation.clientId ?? undefined);
   }
 
   get totalPages() {

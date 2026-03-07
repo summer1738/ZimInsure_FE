@@ -28,12 +28,12 @@
     <tbody class="ant-table-tbody">
       <tr *ngFor="let quotation of filteredQuotations">
         <td>{{ quotation.quotationNumber }}</td>
-        <td>{{ quotation.client?.fullName || '-' }}</td>
+        <td>{{ quotation.clientName || quotation.client?.fullName || '-' }}</td>
         <td>{{ quotation.policyType }}</td>
         <td>{{ quotation.amount }}</td>
         <td>{{ quotation.status }}</td>
         <td>{{ quotation.createdDate }}</td>
-        <td>{{ quotation.car?.regNumber || '-' }}</td>
+        <td>{{ quotation.carRegNumber || quotation.car?.regNumber || '-' }}</td>
         <td>
           <button class="btn btn-secondary btn-sm" (click)="showEditModal(quotation)"
             *ngIf="canEditDelete">Edit</button>
@@ -94,13 +94,11 @@
                 <input class="form-control" [value]="clients[0]?.full_name" readonly />
               </ng-container>
               <ng-template #clientSelect>
-                <select class="form-control" [(ngModel)]="selectedQuotation.client" name="client" required
+                <select class="form-control" [(ngModel)]="selectedQuotation.clientId" name="clientId" required
                   #clientInput="ngModel" [class.is-invalid]="clientInput.invalid && clientInput.touched"
                   (ngModelChange)="onClientChange()">
                   <option [ngValue]="undefined" disabled selected>Select client</option>
-                  <option *ngFor="let client of clients" [ngValue]="{id: client.id, fullName: client.full_name}">
-                    {{ client.full_name }} ({{ client.id }})
-                  </option>
+                  <option *ngFor="let client of clients" [ngValue]="client.id">{{ client.full_name }} ({{ client.id }})</option>
                 </select>
                 <div *ngIf="clientInput.invalid && clientInput.touched" class="text-danger small">
                   Please select a client.
@@ -130,13 +128,15 @@
             </div>
             <div class="col-12 mb-3">
               <label class="font-weight-bold">Car</label>
-              <select class="form-control" [(ngModel)]="selectedQuotation.car" name="car" required #carInput="ngModel"
-                [class.is-invalid]="carInput.invalid && carInput.touched">
+              <select class="form-control" [(ngModel)]="selectedQuotation.carId" name="carId" required #carInput="ngModel"
+                [class.is-invalid]="carInput.invalid && carInput.touched"
+                [disabled]="!selectedQuotation.clientId || clientCars.length === 0">
                 <option [ngValue]="undefined" disabled selected>Select car</option>
-                <option *ngFor="let car of filteredCars" [ngValue]="{id: car.id, regNumber: car.regNumber}">
-                  {{ car.regNumber }} ({{ car.id }})
+                <option *ngFor="let car of clientCars" [ngValue]="car.id">
+                  {{ car.regNumber }} – {{ car.make }} {{ car.model }} ({{ car.year }})
                 </option>
               </select>
+              <small class="text-muted" *ngIf="selectedQuotation.clientId && clientCars.length === 0">No cars registered for this client.</small>
               <div *ngIf="carInput.invalid && carInput.touched" class="text-danger small">
                 Please select a car.
               </div>

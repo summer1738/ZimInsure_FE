@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { PolicyService, Policy } from '../policy.service';
+import { ClientService, Client } from '../../client/client.service';
+import { CarService, Car } from '../../car/car.service';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -45,6 +47,8 @@ export class PolicyManagement {
   selectedPolicy: Policy = createEmptyPolicy();
   isModalVisible = false;
   isEditMode = false;
+  clients: Client[] = [];
+  clientCars: Car[] = [];
 
   private policiesList: Policy[] = [];
   private policiesSubject = new BehaviorSubject<Policy[]>([]);
@@ -52,8 +56,12 @@ export class PolicyManagement {
 
   constructor(
     private policyService: PolicyService,
-    private message: NzMessageService
+    private clientService: ClientService,
+    private carService: CarService,
+    private message: NzMessageService,
+    private cdr: ChangeDetectorRef
   ) {
+    this.clientService.getClients().subscribe(list => this.clients = list || []);
     this.policyService.getPolicies().subscribe(policies => {
       this.policiesList = policies;
       this.policiesSubject.next(this.policiesList);
@@ -78,8 +86,27 @@ export class PolicyManagement {
     this.searchTerm$.next(term);
   }
 
+  /** Load cars for the selected client and clear car when client changes. */
+  onClientChange(): void {
+    const clientId = this.selectedPolicy.clientId;
+    this.selectedPolicy.carId = undefined;
+    this.loadCarsForClient(clientId);
+  }
+
+  loadCarsForClient(clientId: number | undefined): void {
+    if (clientId == null) {
+      this.clientCars = [];
+      return;
+    }
+    this.carService.getCars(clientId).subscribe(cars => {
+      this.clientCars = cars || [];
+      this.cdr.detectChanges();
+    });
+  }
+
   showAddModal() {
     this.selectedPolicy = createEmptyPolicy();
+    this.clientCars = [];
     this.isEditMode = false;
     this.isModalVisible = true;
   }
@@ -88,9 +115,14 @@ export class PolicyManagement {
     this.selectedPolicy = { ...policy };
     this.isEditMode = true;
     this.isModalVisible = true;
+    this.loadCarsForClient(policy.clientId ?? undefined);
   }
 
   handleModalOk(policy: Policy) {
+    if (!this.isEditMode && (policy.carId == null || policy.clientId == null)) {
+      this.message.error('Please select a client and a car.');
+      return;
+    }
     if (this.isEditMode) {
       this.policyService.updatePolicy(policy).subscribe({
         next: () => this.refreshPolicies(),
