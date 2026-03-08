@@ -95,7 +95,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success" [disabled]="!policyForm.form.valid">
+          <button type="submit" class="btn btn-success" [disabled]="!policyForm.form.valid || (!isEditMode && (selectedPolicy.clientId == null || selectedPolicy.carId == null))">
             <!-- <i class='bi bi-check-circle'></i> --> {{ isEditMode ? 'Update' : 'Add' }}
           </button>
           <button type="button" class="btn btn-outline-secondary" (click)="handleModalCancel()">

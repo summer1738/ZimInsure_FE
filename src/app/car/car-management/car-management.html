@@ -29,14 +29,13 @@
           <td>{{ car.owner }}</td>
           <td>
             <ng-container *ngIf="getCurrentInsuranceTerm(car.id) | async as term">
-              {{ term?.startDate }} - {{ term?.endDate }}
+              {{ term ? (term.startDate + ' - ' + term.endDate) : '-' }}
             </ng-container>
-            <ng-template #noTerm>-</ng-template>
           </td>
           <td>
-            <span [ngClass]="{'text-success': (getInsuranceStatus(car.id) | async) === 'Active', 'text-danger': (getInsuranceStatus(car.id) | async) === 'Expired'}">
-              {{ getInsuranceStatus(car.id) | async }}
-            </span>
+            <ng-container *ngIf="getInsuranceStatus(car.id) | async as status">
+              <span [ngClass]="{'text-success': status === 'Active', 'text-danger': status === 'Expired'}">{{ status }}</span>
+            </ng-container>
           </td>
           <td>
             <button class="btn btn-sm btn-outline-primary me-2" (click)="showEditModal(car)">Edit</button>
@@ -75,6 +74,13 @@
         </div>
         <div class="modal-body">
           <form (ngSubmit)="handleModalOk(selectedCar)">
+            <div class="mb-3" *ngIf="!isEditMode && (userRole === 'AGENT' || userRole === 'SUPER_ADMIN')">
+              <label class="form-label">Client</label>
+              <select class="form-select" [(ngModel)]="selectedCar.clientId" name="clientId" required>
+                <option [ngValue]="0">Select client</option>
+                <option *ngFor="let c of clients" [ngValue]="c.id">{{ c.full_name }}</option>
+              </select>
+            </div>
             <div class="mb-3">
               <label class="form-label">Reg Number</label>
               <input type="text" class="form-control" [(ngModel)]="selectedCar.regNumber" name="regNumber" maxlength="7" required [ngClass]="{'is-invalid': selectedCar.regNumber && !isValidRegNumber(selectedCar.regNumber)}">
@@ -108,7 +114,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" (click)="handleModalCancel()">Cancel</button>
-              <button type="submit" class="btn btn-primary" [disabled]="!selectedCar.regNumber || !isValidRegNumber(selectedCar.regNumber) || !selectedCar.make || !selectedCar.model || !selectedCar.year || !selectedCar.owner || !selectedCar.status">OK</button>
+              <button type="submit" class="btn btn-primary" [disabled]="!selectedCar.regNumber || !isValidRegNumber(selectedCar.regNumber) || !selectedCar.make || !selectedCar.model || !selectedCar.year || !selectedCar.owner || !selectedCar.status || (!isEditMode && (userRole === 'AGENT' || userRole === 'SUPER_ADMIN') && !selectedCar.clientId)">OK</button>
             </div>
           </form>
         </div>

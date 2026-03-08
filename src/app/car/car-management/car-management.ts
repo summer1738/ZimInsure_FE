@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { CarService, Car } from '../car.service';
-import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { ClientService, Client } from '../../client/client.service';
+import { Observable, BehaviorSubject, combineLatest, of } from 'rxjs';
+import { map, shareReplay, catchError } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { InsuranceService } from '../insurance.service';
+import { InsuranceService, InsuranceTerm } from '../insurance.service';
 import { AuthService } from '../../auth/auth.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
@@ -40,6 +41,8 @@ export class CarManagement {
   isModalVisible = false;
   isEditMode = false;
   userRole: string | null = null;
+  /** For Add Car: list of clients (AGENT = their clients, SUPER_ADMIN = all). */
+  clients: Client[] = [];
 
   // Pagination
   currentPage$ = new BehaviorSubject<number>(1);
@@ -57,14 +60,22 @@ export class CarManagement {
   insuranceStartDate: string = '';
   insuranceEndDate: string = '';
 
+  /** Cache observables per carId so we only request once per car (avoids request storm in table). */
+  private currentTermCache = new Map<number, Observable<InsuranceTerm | null>>();
+  private statusCache = new Map<number, Observable<string>>();
+
   constructor(
     private carService: CarService,
+    private clientService: ClientService,
     private insuranceService: InsuranceService,
     private authService: AuthService,
     private message: NzMessageService
   ) {
     this.userRole = this.authService.getRole();
     this.cars$ = this.carService.getCars();
+    if (this.userRole === 'AGENT' || this.userRole === 'SUPER_ADMIN') {
+      this.clientService.getClients().subscribe(list => this.clients = list || []);
+    }
     this.filteredCars$ = combineLatest([
       this.cars$,
       this.searchTerm$,
@@ -145,9 +156,25 @@ export class CarManagement {
         error: () => this.message.error('Failed to update car')
       });
     } else {
-      this.carService.addCar(car).subscribe({
+      if (this.userRole === 'AGENT' || this.userRole === 'SUPER_ADMIN') {
+        if (!car.clientId) {
+          this.message.error('Please select a client');
+          return;
+        }
+      }
+      const body = {
+        regNumber: car.regNumber,
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        owner: car.owner,
+        status: car.status,
+        type: (car.type || 'private').toUpperCase(),
+        client: (this.userRole === 'AGENT' || this.userRole === 'SUPER_ADMIN') && car.clientId ? { id: car.clientId } : null
+      };
+      this.carService.addCar(body as unknown as Car).subscribe({
         next: () => this.refreshCars(),
-        error: () => this.message.error('Failed to add car')
+        error: (err) => this.message.error(err?.error?.message || 'Failed to add car')
       });
     }
     this.isModalVisible = false;
@@ -166,6 +193,8 @@ export class CarManagement {
 
   refreshCars() {
     this.cars$ = this.carService.getCars();
+    this.currentTermCache.clear();
+    this.statusCache.clear();
   }
 
   isValidRegNumber(reg: string): boolean {
@@ -217,17 +246,29 @@ export class CarManagement {
 
   /**
    * Returns the current (active) insurance term for a car, or null if none is active.
+   * Cached per carId so the table does not trigger repeated HTTP requests.
    */
-  getCurrentInsuranceTerm(carId: number) {
-    return this.insuranceService.getCurrentTermByCarId(carId);
+  getCurrentInsuranceTerm(carId: number): Observable<InsuranceTerm | null> {
+    if (!this.currentTermCache.has(carId)) {
+      this.currentTermCache.set(carId, this.insuranceService.getCurrentTermByCarId(carId).pipe(
+        catchError(() => of(null)),
+        shareReplay(1)
+      ));
+    }
+    return this.currentTermCache.get(carId)!;
   }
 
   /**
    * Returns 'Active' if the car has an active insurance term, otherwise 'Expired'.
+   * Cached per carId so the table does not trigger repeated HTTP requests.
    */
   getInsuranceStatus(carId: number): Observable<string> {
-    return this.insuranceService.isCarInsured(carId).pipe(
-      map(isInsured => isInsured ? 'Active' : 'Expired')
-    );
+    if (!this.statusCache.has(carId)) {
+      this.statusCache.set(carId, this.insuranceService.isCarInsured(carId).pipe(
+        map(isInsured => isInsured ? 'Active' : 'Expired'),
+        shareReplay(1)
+      ));
+    }
+    return this.statusCache.get(carId)!;
   }
 }

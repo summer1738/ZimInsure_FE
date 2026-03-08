@@ -144,7 +144,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success" [disabled]="!quotationForm.form.valid || isLoading">
+          <button type="submit" class="btn btn-success" [disabled]="!quotationForm.form.valid || isLoading || (!isEditMode && (selectedQuotation.clientId == null || selectedQuotation.carId == null))">
             <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
               aria-hidden="true"></span>
             {{ isEditMode ? 'Update' : 'Add' }}

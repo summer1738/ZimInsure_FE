@@ -13,6 +13,13 @@ export interface Client {
   address: string;
   status: string;
   agentId?: number;
+  /** When creating as SUPER_ADMIN: assign client to this agent (maps to backend createdBy). */
+  createdBy?: number;
+  /** From GET /clients/me: assigned agent id (for client dashboard). */
+  assignedAgentId?: number;
+  assigned_agent_name?: string;
+  assigned_agent_email?: string;
+  assigned_agent_phone?: string;
 }
 
 interface ClientWithCarsPayload {
@@ -79,5 +86,10 @@ export class ClientService {
 
   getClientsByAgentId(agentId: number): Observable<Client[]> {
     return this.api.get<Client[]>('/clients', { agentId: agentId.toString() });
+  }
+
+  /** Reassign a client to an agent (SUPER_ADMIN only). */
+  assignClientToAgent(clientId: number, agentId: number): Observable<Client> {
+    return this.api.patch<Client>(`/clients/${clientId}/assign`, { agentId });
   }
 }

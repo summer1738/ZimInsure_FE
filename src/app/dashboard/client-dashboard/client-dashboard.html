@@ -1,6 +1,21 @@
 <div class="container py-4">
   <h2 class="mb-4">Client Dashboard</h2>
   <app-notification-center></app-notification-center>
+
+  <!-- Assigned agent (only when client has an agent) -->
+  <ng-container *ngIf="myProfile$ | async as profile">
+    <div *ngIf="profile.assigned_agent_name || profile.assignedAgentId" class="card mb-4 shadow-sm" style="border-radius: 1rem;">
+      <div class="card-body">
+        <h5 class="card-title text-primary">Your assigned agent</h5>
+        <p class="mb-0">
+          <strong>{{ profile.assigned_agent_name || 'Agent' }}</strong>
+          <span *ngIf="profile.assigned_agent_email" class="text-muted"> — {{ profile.assigned_agent_email }}</span>
+          <span *ngIf="profile.assigned_agent_phone" class="text-muted"> · {{ profile.assigned_agent_phone }}</span>
+        </p>
+      </div>
+    </div>
+  </ng-container>
+
   <!-- Stats Cards -->
   <div class="row g-4 mb-4">
     <div class="col-md-4 col-6">

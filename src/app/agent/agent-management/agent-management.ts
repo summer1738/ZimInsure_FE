@@ -75,10 +75,10 @@ export class AgentManagement {
           filtered = agents.filter(agent =>
             agent.full_name.toLowerCase().includes(term) ||
             agent.email.toLowerCase().includes(term) ||
-            agent.phone.toLowerCase().includes(term) ||
-            agent.idNumber.toLowerCase().includes(term) ||
-            agent.address.toLowerCase().includes(term) ||
-            agent.status.toLowerCase().includes(term)
+            (agent.phone ?? '').toLowerCase().includes(term) ||
+            (agent.idNumber ?? '').toLowerCase().includes(term) ||
+            (agent.address ?? '').toLowerCase().includes(term) ||
+            (agent.status ?? '').toLowerCase().includes(term)
           );
         }
         // Sort

@@ -1,6 +1,8 @@
 import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { ClientService, Client } from '../client.service';
 import { Car } from '../../car/car.service';
+import { AgentService } from '../../agent/agent.service';
+import { AuthService } from '../../auth/auth.service';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
@@ -51,6 +53,9 @@ export class ClientManagement {
   /** True after client + cars have been loaded in edit modal (so Update can be enabled). */
   editFormLoaded = false;
 
+  userRole: string | null = null;
+  agentOptions: { id: number; name: string }[] = [];
+
   // Cars for new client
   carsForClient: Partial<Car>[] = [createEmptyCarForClient()];
 
@@ -69,9 +74,17 @@ export class ClientManagement {
 
   constructor(
     private clientService: ClientService,
+    private agentService: AgentService,
+    private authService: AuthService,
     private message: NzMessageService,
     private cdr: ChangeDetectorRef
   ) {
+    this.userRole = this.authService.getRole();
+    if (this.userRole === 'SUPER_ADMIN') {
+      this.agentService.getAgents().subscribe(agents => {
+        this.agentOptions = (agents || []).map(a => ({ id: a.id, name: a.full_name || a.email || String(a.id) }));
+      });
+    }
     this.clients$ = this.refreshTrigger$.pipe(
       switchMap(() => this.clientService.getClients())
     );
@@ -206,6 +219,14 @@ export class ClientManagement {
 
   handleModalOk(client: Client) {
     if (!this.isEditMode) {
+      if (this.userRole === 'SUPER_ADMIN' && !(client.agentId ?? client.createdBy)) {
+        this.message.error('Please select an agent to assign this client to.');
+        return;
+      }
+      if (this.hasInvalidCarReg()) {
+        this.message.error('Each car must have a valid registration number (3 letters + 4 digits, e.g. AEE9375).');
+        return;
+      }
       // Validate at least one car and all car fields
       if (
         !this.carsForClient.length ||
@@ -224,9 +245,13 @@ export class ClientManagement {
       }
 
       // Create client together with their cars in a single request
+      const clientPayload =
+        this.userRole === 'SUPER_ADMIN' && (client.agentId ?? client.createdBy)
+          ? { ...client, createdBy: client.agentId ?? client.createdBy }
+          : client;
       this.clientService
         .addClientWithCars({
-          client,
+          client: clientPayload,
           cars: this.carsForClient,
         })
         .subscribe({
@@ -234,7 +259,11 @@ export class ClientManagement {
           error: () => this.message.error('Failed to add client'),
         });
     } else {
-      this.clientService.updateClientWithCars(client, this.carsForClient).subscribe({
+      const updatePayload =
+        this.userRole === 'SUPER_ADMIN'
+          ? { ...client, createdBy: client.agentId ?? client.createdBy ?? undefined }
+          : client;
+      this.clientService.updateClientWithCars(updatePayload, this.carsForClient).subscribe({
         next: () => this.refreshClients(),
         error: () => this.message.error('Failed to update client'),
       });
@@ -265,5 +294,13 @@ export class ClientManagement {
 
   get totalPages() {
     return Array.from({ length: Math.ceil(this.totalClients / this.pageSize) });
+  }
+
+  isValidRegNumber(reg: string | undefined): boolean {
+    return !!reg && /^[A-Z]{3}\d{4}$/.test(reg);
+  }
+
+  hasInvalidCarReg(): boolean {
+    return this.carsForClient.some(car => !this.isValidRegNumber(car.regNumber));
   }
 }

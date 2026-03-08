@@ -6,10 +6,12 @@ export interface Agent {
   id: number;
   full_name: string;
   email: string;
-  phone: string;
-  idNumber: string;
-  address: string;
-  status: string;
+  phone?: string;
+  idNumber?: string;
+  address?: string;
+  status?: string;
+  /** Present when loaded from /agents/assignables (AGENT or SUPER_ADMIN). */
+  role?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -18,6 +20,11 @@ export class AgentService {
 
   getAgents(): Observable<Agent[]> {
     return this.api.get<Agent[]>('/agents');
+  }
+
+  /** Users who can be assigned clients (AGENT + SUPER_ADMIN). For SUPER_ADMIN Client Assignments page. */
+  getAssignableAgents(): Observable<Agent[]> {
+    return this.api.get<Agent[]>('/agents/assignables');
   }
 
   addAgent(agent: Agent): Observable<Agent> {

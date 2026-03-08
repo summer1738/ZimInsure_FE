@@ -39,6 +39,12 @@ export class ApiService {
     );
   }
 
+  patch<T>(endpoint: string, body: any): Observable<T> {
+    return this.http.patch<T>(`${this.baseUrl}${endpoint}`, body).pipe(
+      catchError(err => this.handleError(err))
+    );
+  }
+
   delete<T>(endpoint: string, params?: any): Observable<T> {
     console.log('Making HTTP DELETE request to', this.baseUrl + endpoint);
     return this.http.delete<T>(`${this.baseUrl}${endpoint}`, { params }).pipe(

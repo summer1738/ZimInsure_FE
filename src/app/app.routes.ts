@@ -10,6 +10,7 @@ import { ClientDashboard } from './dashboard/client-dashboard/client-dashboard';
 import { ClientProfileComponent } from './client/client-profile.component';
 import { AgentManagement } from './agent/agent-management/agent-management';
 import { ClientManagement } from './client/client-management/client-management';
+import { ClientAssignments } from './client/client-assignments/client-assignments';
 import { CarManagement } from './car/car-management/car-management';
 import { PolicyManagement } from './policy/policy-management/policy-management';
 import { QuotationManagement } from './quotation/quotation-management/quotation-management';
@@ -32,6 +33,7 @@ export const routes: Routes = [
       { path: 'profile', component: ClientProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['CLIENT', 'AGENT', 'SUPER_ADMIN'] } },
       { path: 'agents', component: AgentManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN'] } },
       { path: 'clients', component: ClientManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT'] } },
+      { path: 'client-assignments', component: ClientAssignments, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN'] } },
       { path: 'cars', component: CarManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT'] } },
       { path: 'policies', component: PolicyManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT'] } },
       { path: 'quotations', component: QuotationManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT'] } },

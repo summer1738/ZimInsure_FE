@@ -85,9 +85,10 @@
               <div class="col-md-2 mb-2">
                 <input class="form-control" placeholder="Reg #" [(ngModel)]="car.regNumber" name="regNumber"
                   maxlength="7" required #regNumberInput="ngModel"
-                  [class.is-invalid]="regNumberInput.invalid && regNumberInput.touched" />
+                  [class.is-invalid]="regNumberInput.invalid && regNumberInput.touched || (car.regNumber && !isValidRegNumber(car.regNumber))" />
                 <div *ngIf="regNumberInput.invalid && regNumberInput.touched" class="text-danger small">Reg # is
                   required.</div>
+                <div *ngIf="car.regNumber && !isValidRegNumber(car.regNumber)" class="text-danger small">3 letters + 4 digits (e.g. AEE9375).</div>
               </div>
               <div class="col-md-2 mb-2">
                 <input class="form-control" placeholder="Make" [(ngModel)]="car.make" name="make" required
@@ -129,7 +130,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success" [disabled]="!clientForm.form.valid">Add</button>
+          <button type="submit" class="btn btn-success" [disabled]="!clientForm.form.valid || hasInvalidCarReg()">Add</button>
           <button type="button" class="btn btn-outline-secondary" (click)="handleClose()">Cancel</button>
         </div>
         <div *ngIf="!clientForm.form.valid && clientForm.submitted" class="alert alert-danger m-3">

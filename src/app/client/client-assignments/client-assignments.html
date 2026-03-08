@@ -1,0 +1,57 @@
+<div class="container py-4">
+  <h2 class="mb-4">Agent–Client Assignments</h2>
+  <p class="text-muted mb-4">
+    View all clients and which agent they are assigned to. Reassign clients to another agent or open Client Management to edit details.
+  </p>
+
+  <div class="mb-3 d-flex flex-wrap align-items-center gap-3">
+    <label class="mb-0">Filter by agent:</label>
+    <select class="form-select w-auto" style="min-width: 200px;" [(ngModel)]="filterAgentId">
+      <option [ngValue]="null">All agents</option>
+      <option *ngFor="let a of agents" [ngValue]="a.id">{{ a.full_name || a.email }}{{ a.role ? ' (' + a.role + ')' : '' }}</option>
+    </select>
+    <a routerLink="/clients" class="btn btn-outline-primary">Client Management (full CRUD)</a>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <span class="spinner-border spinner-border-sm me-2"></span> Loading clients and agents…
+  </div>
+
+  <div *ngIf="!loading" class="table-responsive">
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Email</th>
+          <th>Assigned to</th>
+          <th>Reassign</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let client of filteredClients">
+          <td>{{ client.full_name }}</td>
+          <td>{{ client.email }}</td>
+          <td>{{ getAgentName(client.createdBy) }}</td>
+          <td>
+            <select
+              class="form-select form-select-sm w-auto d-inline-block"
+              [value]="client.createdBy"
+              (change)="reassign(client.id, +$any($event.target).value)"
+              [disabled]="reassigningId === client.id"
+            >
+              <option *ngFor="let a of agents" [value]="a.id">{{ a.full_name || a.email }}{{ a.role ? ' (' + a.role + ')' : '' }}</option>
+            </select>
+            <span *ngIf="reassigningId === client.id" class="spinner-border spinner-border-sm ms-2"></span>
+          </td>
+          <td>
+            <a [routerLink]="['/clients']" queryParamsHandling="merge" class="btn btn-sm btn-outline-secondary">Edit client</a>
+          </td>
+        </tr>
+        <tr *ngIf="filteredClients.length === 0">
+          <td colspan="5" class="text-center text-muted">No clients found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

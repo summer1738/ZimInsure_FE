@@ -75,6 +75,21 @@
       <form #clientForm="ngForm" (ngSubmit)="handleModalOk(selectedClient)">
         <div class="modal-body">
           <div class="row">
+            <div class="col-12 mb-3" *ngIf="!isEditMode && userRole === 'SUPER_ADMIN'">
+              <label class="font-weight-bold">Assign to Agent</label>
+              <select class="form-select" [(ngModel)]="selectedClient.agentId" name="agentId" [required]="!isEditMode && userRole === 'SUPER_ADMIN'">
+                <option [ngValue]="undefined" disabled>Select agent</option>
+                <option *ngFor="let agent of agentOptions" [ngValue]="agent.id">{{ agent.name }}</option>
+              </select>
+            </div>
+            <div class="col-12 mb-3" *ngIf="isEditMode && userRole === 'SUPER_ADMIN'">
+              <label class="font-weight-bold">Assigned to Agent</label>
+              <select class="form-select" [(ngModel)]="selectedClient.agentId" name="agentIdEdit">
+                <option [ngValue]="undefined">— No change —</option>
+                <option *ngFor="let agent of agentOptions" [ngValue]="agent.id">{{ agent.name }}</option>
+              </select>
+              <small class="text-muted">Change to reassign this client to another agent.</small>
+            </div>
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Name</label>
               <input class="form-control" [(ngModel)]="selectedClient.full_name" name="full_name" required />
@@ -116,7 +131,8 @@
             <div *ngFor="let car of carsForClient; let i = index" class="row align-items-end mb-2">
               <div class="col-md-2 mb-2">
                 <input class="form-control" placeholder="Reg #" [(ngModel)]="car.regNumber" name="regNumber{{i}}"
-                  maxlength="7" required />
+                  maxlength="7" required [ngClass]="{'is-invalid': car.regNumber && !isValidRegNumber(car.regNumber)}" />
+                <div class="invalid-feedback" *ngIf="car.regNumber && !isValidRegNumber(car.regNumber)">e.g. AEE9375</div>
               </div>
               <div class="col-md-2 mb-2">
                 <input class="form-control" placeholder="Make" [(ngModel)]="car.make" name="make{{i}}" required />
@@ -147,7 +163,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success" [disabled]="isEditMode ? !editFormLoaded : !clientForm.form.valid">
+          <button type="submit" class="btn btn-success" [disabled]="isEditMode ? !editFormLoaded : !clientForm.form.valid || hasInvalidCarReg() || (userRole === 'SUPER_ADMIN' && !selectedClient.agentId && !selectedClient.createdBy)">
             <!-- <i class='bi bi-check-circle'></i> --> {{ isEditMode ? 'Update' : 'Add' }}
           </button>
           <button type="button" class="btn btn-outline-secondary" (click)="handleModalCancel()">

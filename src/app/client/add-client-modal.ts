@@ -66,12 +66,19 @@ export class AddClientModal {
       alert('Please fill in all client details.');
       return;
     }
+    if (this.hasInvalidCarReg()) {
+      alert('Each car must have a valid registration number (3 letters + 4 digits, e.g. AEE9375).');
+      return;
+    }
     // Validate at least one car and all car fields
     if (!this.carsForClient.length || this.carsForClient.some(car => !car.regNumber || !car.make || !car.model || !car.year || !car.owner || !car.status)) {
       alert('Please enter at least one car and fill in all car details.');
       return;
     }
-    this.submit.emit({ client: this.client, cars: this.carsForClient });
+    this.submit.emit({
+      client: { ...this.client, createdBy: this.client.agentId ?? undefined },
+      cars: this.carsForClient
+    });
     this.reset();
   }
 
@@ -89,6 +96,14 @@ export class AddClientModal {
   }
 
   public currentYear = new Date().getFullYear();
+
+  isValidRegNumber(reg: string | undefined): boolean {
+    return !!reg && /^[A-Z]{3}\d{4}$/.test(reg);
+  }
+
+  hasInvalidCarReg(): boolean {
+    return this.carsForClient.some(car => !this.isValidRegNumber(car.regNumber));
+  }
 
   // Safely stringify objects with circular references for debugging
   safeStringify(obj: any) {

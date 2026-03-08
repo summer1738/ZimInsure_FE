@@ -16,6 +16,8 @@ function createEmptyQuotation(): Quotation {
     status: '',
     amount: 0,
     createdDate: '',
+    clientId: undefined,
+    carId: undefined,
     client: undefined,
     agent: undefined,
     car: undefined,

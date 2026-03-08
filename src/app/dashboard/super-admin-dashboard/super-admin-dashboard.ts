@@ -3,6 +3,7 @@ import { ClientService, Client } from '../../client/client.service';
 import { PolicyService, Policy } from '../../policy/policy.service';
 import { QuotationService, Quotation } from '../../quotation/quotation.service';
 import { CarService, Car } from '../../car/car.service';
+import { AgentService } from '../../agent/agent.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
@@ -36,10 +37,7 @@ export class SuperAdminDashboard {
   recentQuotations$: Observable<Quotation[]>;
 
   showAddClientModal = false;
-  agentOptions: { id: number, name: string }[] = [
-    { id: 1, name: 'Agent 1' },
-    { id: 2, name: 'Agent 2' }
-  ];
+  agentOptions: { id: number, name: string }[] = [];
 
   selectedCard: 'clients' | 'cars' | 'policies' | 'quotations' | null = null;
   isModalVisible = false;
@@ -51,6 +49,7 @@ export class SuperAdminDashboard {
     private carService: CarService,
     private policyService: PolicyService,
     private quotationService: QuotationService,
+    private agentService: AgentService,
     private modal: NzModalService,
     private message: NzMessageService
   ) {
@@ -58,13 +57,15 @@ export class SuperAdminDashboard {
     this.totalCars$ = this.carService.getCars().pipe(map(cars => cars.length));
     this.totalPolicies$ = this.policyService.getPolicies().pipe(map(policies => policies.length));
     this.totalQuotations$ = this.quotationService.getQuotations().pipe(map(quotations => quotations.length));
-
     this.recentPolicies$ = this.policyService.getPolicies().pipe(
-      map(policies => [...policies].sort((a, b) => b.id - a.id).slice(0, 5))
+      map(policies => [...policies].sort((a, b) => (b.id ?? 0) - (a.id ?? 0)).slice(0, 5))
     );
     this.recentQuotations$ = this.quotationService.getQuotations().pipe(
-      map(quotations => [...quotations].sort((a, b) => b.id - a.id).slice(0, 5))
+      map(quotations => [...quotations].sort((a, b) => (b.id ?? 0) - (a.id ?? 0)).slice(0, 5))
     );
+    this.agentService.getAgents().subscribe(agents => {
+      this.agentOptions = (agents || []).map(a => ({ id: a.id, name: a.full_name || a.email || String(a.id) }));
+    });
   }
 
   openAddClientModal() {

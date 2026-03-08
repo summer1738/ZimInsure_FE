@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { PolicyService, Policy } from '../../policy/policy.service';
 import { QuotationService, Quotation } from '../../quotation/quotation.service';
 import { CarService, Car } from '../../car/car.service';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { ClientService, Client } from '../../client/client.service';
+import { Observable, of } from 'rxjs';
+import { map, catchError, shareReplay } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NotificationCenter } from '../../notification/notification-center/notification-center';
@@ -34,10 +35,14 @@ export class ClientDashboard {
   recentPolicies$: Observable<Policy[]>;
   recentQuotations$: Observable<Quotation[]>;
 
+  /** Client's profile including assigned agent (for "Your agent" section). */
+  myProfile$: Observable<Client | null>;
+
   constructor(
     private policyService: PolicyService,
     private quotationService: QuotationService,
-    private carService: CarService
+    private carService: CarService,
+    private clientService: ClientService
   ) {
     this.totalActivePolicies$ = this.policyService.getPolicies().pipe(
       map(policies => policies.filter(p => p.status === 'Active').length)
@@ -52,6 +57,11 @@ export class ClientDashboard {
     );
     this.recentQuotations$ = this.quotationService.getQuotations().pipe(
       map(quotations => [...quotations].sort((a, b) => b.id - a.id).slice(0, 5))
+    );
+    this.myProfile$ = this.clientService.getMyProfile().pipe(
+      map(p => p ?? null),
+      catchError(() => of(null)),
+      shareReplay(1)
     );
   }
 
