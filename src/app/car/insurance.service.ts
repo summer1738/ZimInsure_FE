@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { ApiService } from '../api.service';
 
 export interface InsuranceTerm {
@@ -36,8 +35,10 @@ export class InsuranceService {
     return this.api.get<InsuranceTerm>('/insurance-terms/current', { carId: carId.toString() });
   }
 
+  /**
+   * Backend returns a plain boolean body (true/false) from /insurance-terms/is-insured.
+   */
   isCarInsured(carId: number): Observable<boolean> {
-    return this.api.get<{ insured: boolean }>('/insurance-terms/is-insured', { carId: carId.toString() })
-      .pipe(map(res => res.insured));
+    return this.api.get<boolean>('/insurance-terms/is-insured', { carId: carId.toString() });
   }
 } 

@@ -21,9 +21,12 @@
           'bi-x-circle': n.type === 'error'
         }"></i>
       </span>
-      <span class="ms-2">{{ n.message }}</span>
+      <span class="ms-2 flex-grow-1">{{ n.displayMessage || n.message }}</span>
       <small class="text-muted ms-2">{{ n.timestamp | date:'short' }}</small>
-      <button *ngIf="!n.read" class="btn btn-sm btn-outline-secondary ms-auto" (click)="markAsRead(n.id)">Mark as Read</button>
+      <span class="ms-2">
+        <button *ngIf="!n.read" class="btn btn-sm btn-outline-secondary me-1" (click)="markAsRead(n.id)">Mark as Read</button>
+        <button class="btn btn-sm btn-outline-danger" (click)="deleteNotification(n.id)" title="Delete">Delete</button>
+      </span>
     </li>
   </ul>
 </div>

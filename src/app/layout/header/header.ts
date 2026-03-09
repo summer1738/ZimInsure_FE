@@ -32,11 +32,12 @@ export class Header implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.userRole = (this.authService.getRole() as 'SUPER_ADMIN' | 'AGENT' | 'CLIENT') || 'SUPER_ADMIN';
     // Restore dark mode preference
     const darkPref = localStorage.getItem('darkMode');
     this.darkMode = darkPref === 'true';
     this.applyDarkMode();
-    // Fetch full name for CLIENT or SUPER_ADMIN
+    // Fetch full name for CLIENT or SUPER_ADMIN (agent may fall back to username)
     this.clientService.getMyProfile().subscribe({
       next: (profile) => {
         this.userName = profile.full_name || 'User';
@@ -45,16 +46,9 @@ export class Header implements OnInit, OnDestroy {
         this.userName = this.authService.getUsername() || 'User';
       }
     });
-    this.notifSub = this.notificationService.getNotifications().subscribe((notifs: Notification[]) => {
-      let filtered: Notification[] = [];
-      if (this.userRole === 'SUPER_ADMIN') {
-        filtered = notifs;
-      } else if (this.userRole === 'AGENT') {
-        filtered = notifs.filter((n: Notification) => n.agentId === this.agentId || n.forRole === 'AGENT');
-      } else if (this.userRole === 'CLIENT') {
-        filtered = notifs.filter((n: Notification) => n.clientId === this.clientId || n.forRole === 'CLIENT');
-      }
-      this.unreadCount = filtered.filter((n: Notification) => !n.read).length;
+    // Use /me so backend returns only current user's notifications (fixes agent count and list)
+    this.notifSub = this.notificationService.getNotificationsMe().subscribe((notifs: Notification[]) => {
+      this.unreadCount = notifs.filter((n: Notification) => !n.read).length;
     });
   }
 

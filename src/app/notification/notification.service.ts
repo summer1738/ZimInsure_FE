@@ -8,6 +8,8 @@ export type NotificationType = 'info' | 'success' | 'warning' | 'error';
 export interface Notification {
   id: number;
   message: string;
+  /** When set (e.g. for admin/agent viewing client notifications), show this instead of message. */
+  displayMessage?: string;
   type: NotificationType;
   timestamp: string;
   read: boolean;
@@ -23,7 +25,28 @@ export class NotificationService {
 
   constructor(private http: HttpClient) {}
 
+  /** Notifications for the current user (by role). Use this for header count and notification center. */
+  getNotificationsMe(): Observable<Notification[]> {
+    return this.http.get<Notification[]>(`${this.apiUrl}/me`);
+  }
+
   getNotifications(): Observable<Notification[]> {
     return this.http.get<Notification[]>(this.apiUrl);
+  }
+
+  markAsRead(id: number): Observable<Notification> {
+    return this.http.put<Notification>(`${this.apiUrl}/read/${id}`, {});
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  markAllAsReadMe(): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/me/readAll`, {});
+  }
+
+  addNotification(notification: Partial<Notification>): Observable<Notification> {
+    return this.http.post<Notification>(this.apiUrl, notification);
   }
 } 

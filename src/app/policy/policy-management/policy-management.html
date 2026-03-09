@@ -1,7 +1,7 @@
 <div class="mb-3 d-flex justify-content-between align-items-center">
   <input #searchBox type="text" class="form-control w-auto" style="min-width: 250px;" placeholder="Search policies..."
          (input)="onSearch(searchBox.value)">
-  <button class="btn btn-primary" (click)="showAddModal()">Add Policy</button>
+  <button class="btn btn-primary" (click)="showAddModal()" *ngIf="canEditDelete">Add Policy</button>
 </div>
 
 <div class="ant-table-wrapper">
@@ -10,6 +10,7 @@
       <tr>
         <th>Policy Number</th>
         <th>Type</th>
+        <th>Company</th>
         <th>Premium</th>
         <th>Start Date</th>
         <th>End Date</th>
@@ -22,18 +23,22 @@
       <tr *ngFor="let policy of (filteredPolicies$ | async) || []">
         <td>{{ policy.policyNumber }}</td>
         <td>{{ policy.type }}</td>
+        <td>{{ policy.insuranceCompany }}</td>
         <td>{{ policy.premium }}</td>
         <td>{{ policy.startDate }}</td>
         <td>{{ policy.endDate }}</td>
         <td>{{ policy.clientName }}</td>
         <td>{{ policy.status }}</td>
         <td>
-          <button class="btn btn-secondary btn-sm" (click)="showEditModal(policy)">Edit</button>
-          <button class="btn btn-danger btn-sm" (click)="deletePolicy(policy.id)">Delete</button>
+          <button class="btn btn-secondary btn-sm" (click)="showEditModal(policy)" *ngIf="canEditDelete">Edit</button>
+          <button class="btn btn-danger btn-sm" (click)="deletePolicy(policy.id)" *ngIf="canEditDelete">Delete</button>
+          <button class="btn btn-outline-primary btn-sm ms-1" (click)="generateQuotation(policy)" *ngIf="canEditDelete">
+            Generate Quotation
+          </button>
         </td>
       </tr>
       <tr *ngIf="((filteredPolicies$ | async) || []).length === 0">
-        <td colspan="8" style="text-align: center;">No policies found.</td>
+        <td colspan="9" style="text-align: center;">No policies found.</td>
       </tr>
     </tbody>
   </table>
@@ -60,6 +65,10 @@
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Type</label>
               <input class="form-control" [(ngModel)]="selectedPolicy.type" name="type" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="font-weight-bold">Insurance Company</label>
+              <input class="form-control" [(ngModel)]="selectedPolicy.insuranceCompany" name="insuranceCompany" required />
             </div>
             <div class="col-md-6 mb-3">
               <label class="font-weight-bold">Premium</label>

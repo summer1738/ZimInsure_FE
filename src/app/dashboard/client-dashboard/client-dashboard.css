@@ -1,0 +1,27 @@
+/* Blue floating badge: remaining days on current insurance(s) */
+:host ::ng-deep .insurance-remaining-badge,
+.insurance-remaining-badge {
+  position: fixed !important;
+  bottom: 1.5rem !important;
+  right: 1.5rem !important;
+  z-index: 9999 !important;
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
+  color: white !important;
+  padding: 0.6rem 1.2rem !important;
+  border-radius: 2rem !important;
+  box-shadow: 0 4px 14px rgba(13, 110, 253, 0.5) !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  white-space: nowrap !important;
+  display: inline-block !important;
+}
+
+.insurance-remaining-badge:hover {
+  box-shadow: 0 6px 18px rgba(13, 110, 253, 0.6) !important;
+}
+
+.insurance-remaining-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}

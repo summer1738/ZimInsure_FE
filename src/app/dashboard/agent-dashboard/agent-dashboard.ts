@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { AddClientModal } from '../../client/add-client-modal';
 import { RouterModule } from '@angular/router';
-import { NotificationService } from '../../notification/notification-center/notification-center';
+import { NotificationService } from '../../notification/notification.service';
 import { NotificationCenter } from '../../notification/notification-center/notification-center';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 

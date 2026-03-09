@@ -1,3 +1,10 @@
+<!-- Blue floating badge: remaining days on current insurance(s) - always visible on client dashboard -->
+<div class="insurance-remaining-badge">
+  <span class="insurance-remaining-text">
+    Remaining: {{ remainingInsuranceLabel }}
+  </span>
+</div>
+
 <div class="container py-4">
   <h2 class="mb-4">Client Dashboard</h2>
   <app-notification-center></app-notification-center>
@@ -45,6 +52,15 @@
         </div>
       </div>
     </div>
+    <div class="col-md-4 col-6">
+      <div class="card bg-gradient-card text-white h-100 shadow-lg"
+        style="border-radius: 1rem;">
+        <div class="card-body">
+          <h5 class="card-title">Active Insurances</h5>
+          <h2 class="card-text"><span *ngIf="totalActiveInsurances$ | async as total">{{ total }}</span></h2>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Quick Links -->
@@ -53,7 +69,6 @@
     <div class="btn-group flex-wrap" role="group">
       <a routerLink="/policies" class="btn btn-outline-success">Manage Policies</a>
       <a routerLink="/quotations" class="btn btn-outline-warning">Manage Quotations</a>
-      <a routerLink="/cars" class="btn btn-outline-info">Manage Cars</a>
       <a routerLink="/profile" class="btn btn-outline-primary">My Profile</a>
     </div>
   </div>
@@ -107,6 +122,38 @@
               </tr>
               <tr *ngIf="(recentQuotations$ | async)?.length === 0">
                 <td colspan="3" class="text-center">No recent quotations.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Insurances -->
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card h-100 shadow-lg" style="border-radius: 1rem;">
+        <div class="card-header bg-info text-dark">Recent Insurances</div>
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <thead>
+              <tr>
+                <th>Car</th>
+                <th>Term</th>
+                <th>Start</th>
+                <th>End</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let term of recentInsurances$ | async">
+                <td>{{ term.car?.regNumber || term.car?.id }}</td>
+                <td>{{ term.termCount }} × 4 months</td>
+                <td>{{ term.startDate }}</td>
+                <td>{{ term.endDate }}</td>
+              </tr>
+              <tr *ngIf="(recentInsurances$ | async)?.length === 0">
+                <td colspan="4" class="text-center">No insurance terms yet.</td>
               </tr>
             </tbody>
           </table>

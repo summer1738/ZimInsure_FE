@@ -14,8 +14,10 @@
             sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
         <th (click)="onSort('policyType')" style="cursor:pointer;">Policy Type <span
             *ngIf="sortColumn === 'policyType'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+        <th>Company</th>
         <th (click)="onSort('amount')" style="cursor:pointer;">Amount <span *ngIf="sortColumn === 'amount'">{{
             sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+        <th>Client Proposal</th>
         <th (click)="onSort('status')" style="cursor:pointer;">Status <span *ngIf="sortColumn === 'status'">{{
             sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
         <th (click)="onSort('createdDate')" style="cursor:pointer;">Date <span *ngIf="sortColumn === 'createdDate'">{{
@@ -30,19 +32,39 @@
         <td>{{ quotation.quotationNumber }}</td>
         <td>{{ quotation.clientName || quotation.client?.fullName || '-' }}</td>
         <td>{{ quotation.policyType }}</td>
+        <td>{{ quotation.insuranceCompany }}</td>
         <td>{{ quotation.amount }}</td>
+        <td>
+          <ng-container *ngIf="quotation.clientProposedAmount != null; else noProposal">
+            <div>{{ quotation.clientProposedAmount }}</div>
+            <small *ngIf="quotation.clientComment" class="text-muted">
+              {{ quotation.clientComment }}
+            </small>
+          </ng-container>
+          <ng-template #noProposal>-</ng-template>
+        </td>
         <td>{{ quotation.status }}</td>
         <td>{{ quotation.createdDate }}</td>
         <td>{{ quotation.carRegNumber || quotation.car?.regNumber || '-' }}</td>
         <td>
-          <button class="btn btn-secondary btn-sm" (click)="showEditModal(quotation)"
+          <!-- Agent / SUPER_ADMIN can still edit/delete -->
+          <button class="btn btn-secondary btn-sm me-1" (click)="showEditModal(quotation)"
             *ngIf="canEditDelete">Edit</button>
-          <button class="btn btn-danger btn-sm" (click)="deleteQuotation(quotation.id)"
+          <button class="btn btn-danger btn-sm me-1" (click)="deleteQuotation(quotation.id)"
             *ngIf="canEditDelete">Delete</button>
+          <!-- Client actions: accept / decline / negotiate -->
+          <ng-container *ngIf="!canEditDelete">
+            <button class="btn btn-success btn-sm me-1"
+              (click)="onClientAction(quotation, 'ACCEPT')" [disabled]="quotation.status === 'ACCEPTED'">Accept</button>
+            <button class="btn btn-outline-danger btn-sm me-1"
+              (click)="onClientAction(quotation, 'DECLINE')" [disabled]="quotation.status === 'DECLINED'">Decline</button>
+            <button class="btn btn-outline-warning btn-sm"
+              (click)="onClientNegotiate(quotation)">Negotiate</button>
+          </ng-container>
         </td>
       </tr>
       <tr *ngIf="filteredQuotations.length === 0">
-        <td colspan="8" style="text-align: center;">No quotations found.</td>
+        <td colspan="10" style="text-align: center;">No quotations found.</td>
       </tr>
     </tbody>
   </table>
@@ -154,6 +176,41 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Client negotiation modal: nicer UI for proposed amount and comment -->
+<div class="modal fade show" tabindex="-1"
+  [ngStyle]="{display: isNegotiationModalVisible ? 'block' : 'none', background: 'rgba(0,0,0,0.5)'}"
+  style="z-index: 1060;" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content shadow">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title mb-0">Negotiate quotation</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="cancelNegotiation()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Proposed amount</label>
+          <input type="number" class="form-control" [(ngModel)]="negotiationAmount" name="negotiationAmount" min="1">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Comment (optional)</label>
+          <textarea class="form-control" rows="3" [(ngModel)]="negotiationComment" name="negotiationComment"
+            placeholder="Explain why you are requesting a different price..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelNegotiation()" [disabled]="isLoading">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-warning" (click)="submitNegotiation()" [disabled]="isLoading">
+          <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
+            aria-hidden="true"></span>
+          Send negotiation
+        </button>
+      </div>
     </div>
   </div>
 </div>

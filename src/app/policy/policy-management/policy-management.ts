@@ -1,5 +1,7 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { PolicyService, Policy } from '../policy.service';
+import { QuotationService } from '../../quotation/quotation.service';
+import { AuthService } from '../../auth/auth.service';
 import { ClientService, Client } from '../../client/client.service';
 import { CarService, Car } from '../../car/car.service';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
@@ -23,6 +25,7 @@ function createEmptyPolicy(): Policy {
     endDate: '',
     carId: undefined,
     clientId: undefined,
+    insuranceCompany: '',
   };
 }
 
@@ -54,14 +57,22 @@ export class PolicyManagement {
   private policiesSubject = new BehaviorSubject<Policy[]>([]);
   policies$ = this.policiesSubject.asObservable();
 
+  currentRole: string = '';
+
   constructor(
     private policyService: PolicyService,
     private clientService: ClientService,
     private carService: CarService,
     private message: NzMessageService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private quotationService: QuotationService,
+    private authService: AuthService
   ) {
-    this.clientService.getClients().subscribe(list => this.clients = list || []);
+    this.currentRole = this.authService.getRole() ?? '';
+    // Only AGENT / SUPER_ADMIN need full client list for assigning policies.
+    if (this.currentRole === 'AGENT' || this.currentRole === 'SUPER_ADMIN') {
+      this.clientService.getClients().subscribe(list => this.clients = list || []);
+    }
     this.policyService.getPolicies().subscribe(policies => {
       this.policiesList = policies;
       this.policiesSubject.next(this.policiesList);
@@ -105,6 +116,7 @@ export class PolicyManagement {
   }
 
   showAddModal() {
+    if (!this.canEditDelete) return;
     this.selectedPolicy = createEmptyPolicy();
     this.clientCars = [];
     this.isEditMode = false;
@@ -112,6 +124,7 @@ export class PolicyManagement {
   }
 
   showEditModal(policy: Policy) {
+    if (!this.canEditDelete) return;
     this.selectedPolicy = { ...policy };
     this.isEditMode = true;
     this.isModalVisible = true;
@@ -146,6 +159,7 @@ export class PolicyManagement {
   }
 
   deletePolicy(id: number) {
+    if (!this.canEditDelete) return;
     this.policyService.deletePolicy(id).subscribe({
       next: () => this.refreshPolicies(),
       error: () => this.message.error('Failed to delete policy')
@@ -157,5 +171,22 @@ export class PolicyManagement {
       this.policiesList = policies;
       this.policiesSubject.next(this.policiesList);
     });
+  }
+
+  /** Generate a quotation from this policy for its client and car. */
+  generateQuotation(policy: Policy) {
+    if (!this.canEditDelete) return;
+    if (!policy.id) {
+      this.message.error('Policy ID missing, cannot generate quotation.');
+      return;
+    }
+    this.quotationService.createFromPolicy(policy.id).subscribe({
+      next: () => this.message.success('Quotation generated from policy'),
+      error: () => this.message.error('Failed to generate quotation from policy')
+    });
+  }
+
+  get canEditDelete(): boolean {
+    return this.currentRole === 'AGENT' || this.currentRole === 'SUPER_ADMIN';
   }
 }

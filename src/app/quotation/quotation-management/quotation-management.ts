@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from '../../auth/auth.service';
 import { BehaviorSubject } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 function createEmptyQuotation(): Quotation {
   return {
@@ -21,6 +22,10 @@ function createEmptyQuotation(): Quotation {
     client: undefined,
     agent: undefined,
     car: undefined,
+    insuranceCompany: '',
+    policyId: undefined,
+    clientProposedAmount: undefined,
+    clientComment: undefined,
   };
 }
 
@@ -55,6 +60,12 @@ export class QuotationManagement implements OnInit {
   sortDirection: 'asc' | 'desc' = 'asc';
 
   currentRole: string = '';
+
+  // Client negotiation modal state
+  isNegotiationModalVisible = false;
+  negotiationAmount: number | null = null;
+  negotiationComment: string = '';
+  negotiationTarget: Quotation | null = null;
 
   private quotationsList: Quotation[] = [];
   private quotationsSubject = new BehaviorSubject<Quotation[]>([]);
@@ -183,33 +194,33 @@ export class QuotationManagement implements OnInit {
     }
     this.isLoading = true;
     if (this.isEditMode) {
-      this.quotationService.updateQuotation(quotation.id, quotation).subscribe({
-        next: () => {
-          this.loadQuotations();
-          this.message.success('Quotation updated successfully');
-          this.isModalVisible = false;
-          this.isLoading = false;
-        },
-        error: () => {
-          this.message.error('Failed to update quotation');
-          this.isLoading = false;
-        }
-      });
+      this.quotationService.updateQuotation(quotation.id, quotation)
+        .pipe(finalize(() => { this.isLoading = false; }))
+        .subscribe({
+          next: () => {
+            this.loadQuotations();
+            this.message.success('Quotation updated successfully');
+            this.isModalVisible = false;
+          },
+          error: () => {
+            this.message.error('Failed to update quotation');
+          }
+        });
     } else {
-      this.quotationService.addQuotation(quotation).subscribe({
-        next: (newQuotation) => {
-          this.quotationsList = [newQuotation, ...this.quotationsList];
-          this.quotationsSubject.next(this.quotationsList);
-          this.loadQuotations(); // Optionally sync with backend
-          this.message.success('Quotation created successfully');
-          this.isModalVisible = false;
-          this.isLoading = false;
-        },
-        error: () => {
-          this.message.error('Failed to create quotation');
-          this.isLoading = false;
-        }
-      });
+      this.quotationService.addQuotation(quotation)
+        .pipe(finalize(() => { this.isLoading = false; }))
+        .subscribe({
+          next: (newQuotation) => {
+            this.quotationsList = [newQuotation, ...this.quotationsList];
+            this.quotationsSubject.next(this.quotationsList);
+            this.loadQuotations(); // Optionally sync with backend
+            this.message.success('Quotation created successfully');
+            this.isModalVisible = false;
+          },
+          error: () => {
+            this.message.error('Failed to create quotation');
+          }
+        });
     }
   }
 
@@ -220,23 +231,83 @@ export class QuotationManagement implements OnInit {
   deleteQuotation(id: number) {
     if (window.confirm('Are you sure you want to delete this quotation?')) {
       this.isLoading = true;
-      this.quotationService.deleteQuotation(id).subscribe({
-        next: () => {
-          this.loadQuotations();
-          this.message.success('Quotation deleted successfully');
-          this.isLoading = false;
-        },
-        error: () => {
-          this.message.error('Failed to delete quotation');
-          this.isLoading = false;
-        }
-      });
+      this.quotationService.deleteQuotation(id)
+        .pipe(finalize(() => { this.isLoading = false; }))
+        .subscribe({
+          next: () => {
+            this.loadQuotations();
+            this.message.success('Quotation deleted successfully');
+          },
+          error: () => {
+            this.message.error('Failed to delete quotation');
+          }
+        });
     }
   }
 
   onClientChange() {
     this.selectedQuotation.carId = undefined;
     this.loadCarsForClient(this.selectedQuotation.clientId ?? undefined);
+  }
+
+  /** Client quick actions on a quotation: accept or decline. */
+  onClientAction(quotation: Quotation, action: 'ACCEPT' | 'DECLINE') {
+    this.isLoading = true;
+    this.quotationService.clientAction(quotation.id, action)
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe({
+        next: () => {
+          this.loadQuotations();
+          this.message.success(`Quotation ${action.toLowerCase()}ed`);
+        },
+        error: () => {
+          this.message.error('Failed to update quotation');
+        }
+      });
+  }
+
+  /** Client negotiates on a quotation: simple prompt for proposed amount and comment. */
+  onClientNegotiate(quotation: Quotation) {
+    this.negotiationTarget = quotation;
+    this.negotiationAmount = quotation.clientProposedAmount ?? quotation.amount ?? null;
+    this.negotiationComment = quotation.clientComment ?? '';
+    this.isNegotiationModalVisible = true;
+  }
+
+  submitNegotiation() {
+    if (!this.negotiationTarget) {
+      this.isNegotiationModalVisible = false;
+      return;
+    }
+    const proposed = this.negotiationAmount != null ? Number(this.negotiationAmount) : NaN;
+    if (isNaN(proposed) || proposed <= 0) {
+      this.message.error('Please enter a valid amount greater than 0.');
+      return;
+    }
+    this.isLoading = true;
+    this.quotationService.clientAction(
+      this.negotiationTarget.id,
+      'NEGOTIATE',
+      proposed,
+      this.negotiationComment || undefined
+    )
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe({
+        next: () => {
+          this.loadQuotations();
+          this.message.success('Negotiation request sent to agent');
+          this.isNegotiationModalVisible = false;
+          this.negotiationTarget = null;
+        },
+        error: () => {
+          this.message.error('Failed to send negotiation request');
+        }
+      });
+  }
+
+  cancelNegotiation() {
+    this.isNegotiationModalVisible = false;
+    this.negotiationTarget = null;
   }
 
   get totalPages() {

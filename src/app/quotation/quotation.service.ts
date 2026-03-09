@@ -17,6 +17,10 @@ export interface Quotation {
   client?: { id: number; fullName?: string };
   agent?: { id: number; fullName?: string };
   car?: { id: number; regNumber?: string };
+  insuranceCompany?: string;
+  policyId?: number;
+  clientProposedAmount?: number;
+  clientComment?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -54,5 +58,18 @@ export class QuotationService {
 
   deleteQuotation(id: number): Observable<any> {
     return this.api.delete(`/quotations/${id}`);
+  }
+
+  /** Generate a quotation automatically from an existing policy. */
+  createFromPolicy(policyId: number): Observable<Quotation> {
+    return this.api.post<Quotation>(`/quotations/from-policy/${policyId}`, {});
+  }
+
+  /** Client responds to a quotation: ACCEPT, DECLINE, or NEGOTIATE. */
+  clientAction(id: number, action: 'ACCEPT' | 'DECLINE' | 'NEGOTIATE', proposedAmount?: number, comment?: string): Observable<Quotation> {
+    const body: any = { action };
+    if (proposedAmount != null) body.proposedAmount = proposedAmount;
+    if (comment != null) body.comment = comment;
+    return this.api.post<Quotation>(`/quotations/${id}/client-action`, body);
   }
 } 

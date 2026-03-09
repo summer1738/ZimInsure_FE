@@ -13,6 +13,8 @@ export interface Policy {
   clientId?: number;
   premium?: number;
   clientName?: string;
+  /** Name of the insurance company involved in this policy. */
+  insuranceCompany?: string;
 }
 
 @Injectable({ providedIn: 'root' })

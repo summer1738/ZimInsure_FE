@@ -28,19 +28,25 @@
           <td>{{ car.year }}</td>
           <td>{{ car.owner }}</td>
           <td>
-            <ng-container *ngIf="getCurrentInsuranceTerm(car.id) | async as term">
-              {{ term ? (term.startDate + ' - ' + term.endDate) : '-' }}
+            <ng-container *ngIf="getCurrentInsuranceTerm(car.id) | async as term; else noTerm">
+              <ng-container *ngIf="term && term.startDate && term.endDate; else noTerm">
+                {{ term.termCount }} × 4 months ({{ term.startDate }} - {{ term.endDate }})
+              </ng-container>
             </ng-container>
+            <ng-template #noTerm>-</ng-template>
           </td>
           <td>
             <ng-container *ngIf="getInsuranceStatus(car.id) | async as status">
-              <span [ngClass]="{'text-success': status === 'Active', 'text-danger': status === 'Expired'}">{{ status }}</span>
+              <span [ngClass]="{'text-success': status === 'Active', 'text-danger': status === 'Expired'}">
+                {{ status }}
+              </span>
             </ng-container>
           </td>
           <td>
             <button class="btn btn-sm btn-outline-primary me-2" (click)="showEditModal(car)">Edit</button>
             <button class="btn btn-sm btn-outline-danger me-2" (click)="deleteCar(car.id)">Delete</button>
-            <button *ngIf="userRole === 'AGENT' || userRole === 'SUPER_ADMIN'" class="btn btn-sm btn-outline-success" (click)="showInsuranceModal(car)">Insure</button>
+            <button *ngIf="userRole === 'AGENT' || userRole === 'SUPER_ADMIN'" class="btn btn-sm btn-outline-success me-2" (click)="showInsuranceModal(car)">Insure</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="showHistoryModal(car)">View insurances</button>
           </td>
         </tr>
         <tr *ngIf="(filteredCars$ | async)?.length === 0">
@@ -155,4 +161,59 @@
     </div>
   </div>
   <div *ngIf="isInsuranceModalVisible && (userRole === 'AGENT' || userRole === 'SUPER_ADMIN')" class="modal-backdrop fade show"></div>
+
+  <!-- Insurance history modal -->
+  <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.3);" *ngIf="isHistoryModalVisible">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Insurance history – {{ selectedCarForHistory?.regNumber }} ({{ selectedCarForHistory?.make }} {{ selectedCarForHistory?.model }})</h5>
+          <button type="button" class="btn-close" (click)="closeHistoryModal()"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted mb-3" *ngIf="selectedCarForHistory">All insurance terms for this car. You can delete past or future terms if you have permission.</p>
+          <div class="table-responsive">
+            <table class="table table-sm table-striped align-middle">
+              <thead>
+                <tr>
+                  <th>Term</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Status</th>
+                  <th *ngIf="userRole === 'AGENT' || userRole === 'SUPER_ADMIN'">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="historyLoading">
+                  <td [attr.colspan]="(userRole === 'AGENT' || userRole === 'SUPER_ADMIN') ? 5 : 4" class="text-center py-3">Loading…</td>
+                </tr>
+                <tr *ngIf="!historyLoading && historyTerms.length === 0">
+                  <td [attr.colspan]="(userRole === 'AGENT' || userRole === 'SUPER_ADMIN') ? 5 : 4" class="text-center py-3 text-muted">No insurance terms for this car.</td>
+                </tr>
+                <tr *ngFor="let term of historyTerms">
+                  <td>{{ term.termCount }} × 4 months</td>
+                  <td>{{ term.startDate }}</td>
+                  <td>{{ term.endDate }}</td>
+                  <td>
+                    <span [ngClass]="{'text-success': termStatus(term) === 'Active', 'text-danger': termStatus(term) === 'Expired'}">
+                      {{ termStatus(term) }}
+                    </span>
+                  </td>
+                  <td *ngIf="userRole === 'AGENT' || userRole === 'SUPER_ADMIN'">
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteInsuranceTerm(term)" [disabled]="deletingTermId === term.id">
+                      {{ deletingTermId === term.id ? 'Deleting…' : 'Delete' }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeHistoryModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="isHistoryModalVisible" class="modal-backdrop fade show"></div>
 </div>

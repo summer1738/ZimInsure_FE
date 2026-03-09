@@ -35,8 +35,10 @@ export const routes: Routes = [
       { path: 'clients', component: ClientManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT'] } },
       { path: 'client-assignments', component: ClientAssignments, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN'] } },
       { path: 'cars', component: CarManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT'] } },
-      { path: 'policies', component: PolicyManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT'] } },
-      { path: 'quotations', component: QuotationManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT'] } },
+      // Clients can open policies page to view only their policies (read-only UI).
+      { path: 'policies', component: PolicyManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT', 'CLIENT'] } },
+      // Allow CLIENTs to open the quotations page so they can view and respond to their quotations.
+      { path: 'quotations', component: QuotationManagement, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT', 'CLIENT'] } },
       { path: 'notifications', component: NotificationCenter, canActivate: [AuthGuard, RoleGuard], data: { roles: ['SUPER_ADMIN', 'AGENT', 'CLIENT'] } }
     ]
   }

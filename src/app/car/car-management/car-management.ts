@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CarService, Car } from '../car.service';
 import { ClientService, Client } from '../../client/client.service';
 import { Observable, BehaviorSubject, combineLatest, of } from 'rxjs';
-import { map, shareReplay, catchError } from 'rxjs/operators';
+import { map, catchError, shareReplay, finalize } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InsuranceService, InsuranceTerm } from '../insurance.service';
@@ -60,8 +60,15 @@ export class CarManagement {
   insuranceStartDate: string = '';
   insuranceEndDate: string = '';
 
-  /** Cache observables per carId so we only request once per car (avoids request storm in table). */
-  private currentTermCache = new Map<number, Observable<InsuranceTerm | null>>();
+  // Insurance history modal: view all terms for a car and delete
+  isHistoryModalVisible = false;
+  selectedCarForHistory: Car | null = null;
+  historyTerms: InsuranceTerm[] = [];
+  historyLoading = false;
+  deletingTermId: number | null = null;
+
+  // Simple per-car caches so async pipes have a stable observable and we avoid spamming HTTP calls.
+  private termCache = new Map<number, Observable<InsuranceTerm | null>>();
   private statusCache = new Map<number, Observable<string>>();
 
   constructor(
@@ -69,7 +76,8 @@ export class CarManagement {
     private clientService: ClientService,
     private insuranceService: InsuranceService,
     private authService: AuthService,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private cdr: ChangeDetectorRef
   ) {
     this.userRole = this.authService.getRole();
     this.cars$ = this.carService.getCars();
@@ -193,7 +201,8 @@ export class CarManagement {
 
   refreshCars() {
     this.cars$ = this.carService.getCars();
-    this.currentTermCache.clear();
+    // Bust insurance caches so we see fresh status/terms after changes
+    this.termCache.clear();
     this.statusCache.clear();
   }
 
@@ -227,16 +236,27 @@ export class CarManagement {
   }
 
   handleInsuranceModalOk() {
-    if (this.selectedCarForInsurance) {
-      this.insuranceService.addTerm({
-        car: { id: this.selectedCarForInsurance.id },
-        startDate: this.insuranceStartDate,
-        endDate: this.insuranceEndDate,
-        termCount: this.insuranceTermCount
-      }).subscribe();
+    if (!this.selectedCarForInsurance) {
+      this.isInsuranceModalVisible = false;
+      return;
     }
-    this.isInsuranceModalVisible = false;
-    this.selectedCarForInsurance = null;
+    this.insuranceService.addTerm({
+      car: { id: this.selectedCarForInsurance.id },
+      startDate: this.insuranceStartDate,
+      endDate: this.insuranceEndDate,
+      termCount: Number(this.insuranceTermCount) || 1
+    }).subscribe({
+      next: () => {
+        this.message.success('Car insured successfully');
+        this.refreshCars(); // reload cars and clear insurance caches so status updates
+        this.isInsuranceModalVisible = false;
+        this.selectedCarForInsurance = null;
+      },
+      error: () => {
+        // ApiService already shows a detailed error message; keep this generic
+        this.message.error('Failed to insure car');
+      }
+    });
   }
 
   handleInsuranceModalCancel() {
@@ -244,30 +264,107 @@ export class CarManagement {
     this.selectedCarForInsurance = null;
   }
 
+  showHistoryModal(car: Car) {
+    this.selectedCarForHistory = car;
+    this.historyTerms = [];
+    this.isHistoryModalVisible = true;
+    this.loadHistoryTerms();
+  }
+
+  loadHistoryTerms() {
+    if (!this.selectedCarForHistory) return;
+    this.historyLoading = true;
+    this.cdr.detectChanges();
+    const carId = Number(this.selectedCarForHistory.id);
+    this.insuranceService.getTerms(carId).pipe(
+      finalize(() => {
+        this.historyLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (terms) => {
+        this.historyTerms = Array.isArray(terms) ? terms : [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.message.error('Failed to load insurance history');
+      }
+    });
+  }
+
+  closeHistoryModal() {
+    this.isHistoryModalVisible = false;
+    this.selectedCarForHistory = null;
+    this.historyTerms = [];
+    this.refreshCars();
+  }
+
+  deleteInsuranceTerm(term: InsuranceTerm) {
+    if (this.deletingTermId != null) return;
+    // Optimistic UI: remove the row immediately
+    const previousTerms = [...this.historyTerms];
+    this.historyTerms = this.historyTerms.filter(t => t.id !== term.id);
+    this.cdr.detectChanges();
+
+    this.deletingTermId = term.id;
+    this.insuranceService.deleteTerm(term.id).pipe(
+      finalize(() => {
+        // Defer reset to next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+          this.deletingTermId = null;
+          this.cdr.detectChanges();
+        }, 0);
+      })
+    ).subscribe({
+      next: () => {
+        this.message.success('Insurance term deleted');
+        this.refreshCars();
+        this.cdr.detectChanges();
+      },
+      error: (err: { status?: number }) => {
+        if (err?.status === 404) {
+          this.message.info('Term not found or already deleted; removed from list.');
+          this.cdr.detectChanges();
+        } else {
+          // Revert optimistic update on unexpected errors
+          this.historyTerms = previousTerms;
+          this.message.error('Failed to delete insurance term');
+          this.cdr.detectChanges();
+        }
+      }
+    });
+  }
+
+  termStatus(term: InsuranceTerm): 'Active' | 'Expired' {
+    if (!term?.endDate) return 'Expired';
+    return new Date(term.endDate) >= new Date() ? 'Active' : 'Expired';
+  }
+
   /**
    * Returns the current (active) insurance term for a car, or null if none is active.
-   * Cached per carId so the table does not trigger repeated HTTP requests.
    */
   getCurrentInsuranceTerm(carId: number): Observable<InsuranceTerm | null> {
-    if (!this.currentTermCache.has(carId)) {
-      this.currentTermCache.set(carId, this.insuranceService.getCurrentTermByCarId(carId).pipe(
+    if (!this.termCache.has(carId)) {
+      const obs = this.insuranceService.getCurrentTermByCarId(carId).pipe(
         catchError(() => of(null)),
         shareReplay(1)
-      ));
+      );
+      this.termCache.set(carId, obs);
     }
-    return this.currentTermCache.get(carId)!;
+    return this.termCache.get(carId)!;
   }
 
   /**
    * Returns 'Active' if the car has an active insurance term, otherwise 'Expired'.
-   * Cached per carId so the table does not trigger repeated HTTP requests.
    */
   getInsuranceStatus(carId: number): Observable<string> {
     if (!this.statusCache.has(carId)) {
-      this.statusCache.set(carId, this.insuranceService.isCarInsured(carId).pipe(
+      const obs = this.insuranceService.isCarInsured(carId).pipe(
         map(isInsured => isInsured ? 'Active' : 'Expired'),
+        catchError(() => of('Unknown')),
         shareReplay(1)
-      ));
+      );
+      this.statusCache.set(carId, obs);
     }
     return this.statusCache.get(carId)!;
   }
